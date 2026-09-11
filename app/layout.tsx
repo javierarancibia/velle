@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
+import MetaPixel from "@/components/MetaPixel";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -26,6 +27,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
+        {process.env.NEXT_PUBLIC_META_PIXEL_ID ? (
+          <MetaPixel pixelId={process.env.NEXT_PUBLIC_META_PIXEL_ID} />
+        ) : null}
         <header className="border-b border-border">
           <div className="mx-auto max-w-5xl px-6 py-5 flex items-center justify-between">
             <Link href="/" className="text-lg tracking-[0.2em] uppercase font-medium">

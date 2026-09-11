@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { formatPrice } from "@/lib/format";
+import { trackMetaPixelEvent } from "@/lib/metaPixel";
 import type { ProductRow, ProductVariantRow } from "@/lib/types";
 
 interface Props {
@@ -10,6 +11,18 @@ interface Props {
 }
 
 export default function PetPortraitProductClient({ product, variant }: Props) {
+  useEffect(() => {
+    trackMetaPixelEvent("ViewContent", {
+      content_ids: [variant.id],
+      content_name: product.name,
+      content_type: "product",
+      value: variant.price_cents / 100,
+      currency: variant.currency.toUpperCase(),
+    });
+    // Fire once per product-page view — variant/product are static for this page.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [localPreview, setLocalPreview] = useState<string | null>(null);
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -77,6 +90,13 @@ export default function PetPortraitProductClient({ product, variant }: Props) {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ? JSON.stringify(json.error) : "Checkout failed");
+      trackMetaPixelEvent("InitiateCheckout", {
+        content_ids: [variant.id],
+        content_name: product.name,
+        content_type: "product",
+        value: variant.price_cents / 100,
+        currency: variant.currency.toUpperCase(),
+      });
       window.location.href = json.url;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
