@@ -47,8 +47,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </header>
         <main className="flex-1">{children}</main>
         <footer className="border-t border-border">
-          <div className="mx-auto max-w-5xl px-6 py-8 text-xs text-muted">
-            © {new Date().getFullYear()} Velle. Made to order.
+          <div className="mx-auto max-w-5xl px-6 py-8 text-xs text-muted flex items-center justify-between">
+            <span>© {new Date().getFullYear()} Velle. Made to order.</span>
+            <Link href="/returns" className="hover:text-foreground transition-colors">
+              Guarantee &amp; Returns
+            </Link>
           </div>
         </footer>
       </body>

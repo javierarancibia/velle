@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { formatPrice } from "@/lib/format";
 import { trackMetaPixelEvent } from "@/lib/metaPixel";
 import type { ProductRow, ProductVariantRow, StarMapTheme } from "@/lib/types";
@@ -113,6 +114,7 @@ export default function StarMapProductClient({ product, variants }: Props) {
   const [theme, setTheme] = useState<StarMapTheme>("galaxy");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -325,8 +327,25 @@ export default function StarMapProductClient({ product, variants }: Props) {
       }}
     >
       {previewUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={previewUrl} alt="Your star map preview" className="w-full h-full object-cover" />
+        <button
+          type="button"
+          onClick={() => setLightboxOpen(true)}
+          className="group relative block w-full h-full cursor-zoom-in"
+          aria-label="View your star map preview larger"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={previewUrl} alt="Your star map preview" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+          {/* Always-visible badge (not hover-only) so the zoom affordance is
+              discoverable on touch devices too, not just desktop hover. */}
+          <div className="absolute bottom-1.5 right-1.5 bg-white/85 rounded-full p-1 shadow-sm">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2.5">
+              <circle cx="11" cy="11" r="7" />
+              <path d="M21 21l-4.35-4.35" />
+              <path d="M11 8v6M8 11h6" />
+            </svg>
+          </div>
+        </button>
       ) : (
         <div className="w-full h-full flex items-center justify-center bg-[#0b0e1a]">
           <p className="text-white/40 text-[10px] px-3 text-center leading-snug">
@@ -613,6 +632,37 @@ export default function StarMapProductClient({ product, variants }: Props) {
         </div>
         <div className="px-6 py-10">{formPanel}</div>
       </div>
+
+      {lightboxOpen && previewUrl && typeof document !== "undefined"
+        ? createPortal(
+            // Portalled straight onto <body> (standard practice for modals)
+            // rather than left nested inside <main>, so it's a sibling of
+            // <header>/<main>/<footer> and can't inherit any ancestor
+            // stacking-context quirks from the product page's own layout.
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center p-6"
+              style={{ backgroundColor: "rgba(0,0,0,0.9)" }}
+              onClick={() => setLightboxOpen(false)}
+            >
+              <button
+                type="button"
+                onClick={() => setLightboxOpen(false)}
+                aria-label="Close"
+                className="absolute top-4 right-4 text-white/80 hover:text-white text-3xl leading-none"
+              >
+                &times;
+              </button>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={previewUrl}
+                alt="Your star map preview, enlarged"
+                className="max-w-full max-h-full object-contain"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>,
+            document.body
+          )
+        : null}
     </div>
   );
 }
