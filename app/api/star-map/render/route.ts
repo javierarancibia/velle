@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
   const png = await renderStarMapPng(
     { ...parsed.data, kind: "star-map" },
-    { width: 600, height: 750 }
+    { width: 600, height: 850 }
   );
 
   return new Response(new Uint8Array(png), {

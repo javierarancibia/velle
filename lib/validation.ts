@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { STAR_MAP_THEMES } from "./types";
 
 export const starMapPersonalizationSchema = z.object({
   kind: z.literal("star-map"),
@@ -12,6 +13,7 @@ export const starMapPersonalizationSchema = z.object({
   locationLabel: z.string().min(1).max(200),
   title: z.string().min(1).max(80),
   message: z.string().max(300).optional(),
+  theme: z.enum(STAR_MAP_THEMES).optional(),
 });
 
 export const petPortraitPersonalizationSchema = z.object({

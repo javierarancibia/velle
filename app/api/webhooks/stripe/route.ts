@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import {
   getOrderByStripeSessionId,
+  getVariantById,
   hasProcessedWebhookEvent,
   markOrderPaid,
   recordWebhookEvent,
@@ -9,6 +10,7 @@ import {
 } from "@/lib/db";
 import { notifyOperatorOfPaidOrder } from "@/lib/notify";
 import { renderStarMapPng } from "@/lib/starMap/render";
+import { printDimensionsForVariantLabel } from "@/lib/starMap/printSizes";
 import { stripe } from "@/lib/stripe";
 import { uploadPrintFile } from "@/lib/uploads";
 
@@ -80,7 +82,11 @@ export async function POST(req: Request) {
         // page before being sent to Gelato (see lib/gelato.ts).
         if (order.personalization.kind === "star-map") {
           try {
-            const png = await renderStarMapPng(order.personalization, { width: 3000, height: 3750 });
+            const variant = await getVariantById(order.variant_id);
+            const dimensions = variant
+              ? printDimensionsForVariantLabel(variant.label)
+              : printDimensionsForVariantLabel("30x40cm poster");
+            const png = await renderStarMapPng(order.personalization, dimensions);
             const url = await uploadPrintFile(`${order.order_number}.png`, png, "image/png");
             await setOrderPrintFileUrl(order.id, url);
           } catch (err) {

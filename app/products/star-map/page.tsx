@@ -8,8 +8,7 @@ export default async function StarMapPage() {
   const product = await getProductBySlug("star-map");
   if (!product) notFound();
   const variants = await getActiveVariantsByProduct(product.id);
-  const variant = variants[0];
-  if (!variant) notFound();
+  if (variants.length === 0) notFound();
 
-  return <StarMapProductClient product={product} variant={variant} />;
+  return <StarMapProductClient product={product} variants={variants} />;
 }

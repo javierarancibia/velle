@@ -6,6 +6,9 @@ export type OrderStatus =
   | "fulfilled"
   | "canceled";
 
+export const STAR_MAP_THEMES = ["midnight", "deep-blue", "black", "ivory", "galaxy"] as const;
+export type StarMapTheme = (typeof STAR_MAP_THEMES)[number];
+
 export type PersonalizationStarMap = {
   kind: "star-map";
   date: string; // YYYY-MM-DD
@@ -15,6 +18,7 @@ export type PersonalizationStarMap = {
   locationLabel: string;
   title: string;
   message?: string;
+  theme?: StarMapTheme; // defaults to "midnight" when omitted
 };
 
 export type PersonalizationPetPortrait = {
