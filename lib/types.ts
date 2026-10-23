@@ -6,7 +6,18 @@ export type OrderStatus =
   | "fulfilled"
   | "canceled";
 
-export const STAR_MAP_THEMES = ["midnight", "deep-blue", "black", "ivory", "galaxy"] as const;
+// Order here drives both the swatch-picker order (StarMapProductClient.tsx
+// maps over this array) and which theme customers see first -- "galaxy" is
+// first deliberately, it's the default/hero look.
+export const STAR_MAP_THEMES = [
+  "galaxy",
+  "deep-blue",
+  "midnight",
+  "black",
+  "ivory",
+  "white-circle",
+  "white-lines",
+] as const;
 export type StarMapTheme = (typeof STAR_MAP_THEMES)[number];
 
 export type PersonalizationStarMap = {
@@ -18,7 +29,7 @@ export type PersonalizationStarMap = {
   locationLabel: string;
   title: string;
   message?: string;
-  theme?: StarMapTheme; // defaults to "midnight" when omitted
+  theme?: StarMapTheme; // defaults to "galaxy" when omitted
 };
 
 export type PersonalizationPetPortrait = {
@@ -28,7 +39,15 @@ export type PersonalizationPetPortrait = {
   note?: string;
 };
 
-export type Personalization = PersonalizationStarMap | PersonalizationPetPortrait;
+// Not personalized -- a ready-made lit frame. The kind is kept anyway so the
+// checkout's "personalization matches product" guard and the admin order
+// page's per-product branch work the same way for every product.
+export type PersonalizationCuadroJesus = {
+  kind: "cuadro-jesus";
+};
+
+export type Personalization =
+  PersonalizationStarMap | PersonalizationPetPortrait | PersonalizationCuadroJesus;
 
 export interface ProductRow {
   id: string;

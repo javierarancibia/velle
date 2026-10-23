@@ -23,13 +23,18 @@ export const petPortraitPersonalizationSchema = z.object({
   note: z.string().max(300).optional(),
 });
 
+export const cuadroJesusPersonalizationSchema = z.object({
+  kind: z.literal("cuadro-jesus"),
+});
+
 export const personalizationSchema = z.discriminatedUnion("kind", [
   starMapPersonalizationSchema,
   petPortraitPersonalizationSchema,
+  cuadroJesusPersonalizationSchema,
 ]);
 
 export const checkoutRequestSchema = z.object({
-  productSlug: z.enum(["star-map", "pet-portrait"]),
+  productSlug: z.enum(["star-map", "pet-portrait", "cuadro-jesus"]),
   variantId: z.string().uuid(),
   personalization: personalizationSchema,
 });

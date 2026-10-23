@@ -49,6 +49,8 @@ export default async function AdminOrderDetailPage({
             <li>Title: {order.personalization.title}</li>
             {order.personalization.message ? <li>Message: {order.personalization.message}</li> : null}
           </ul>
+        ) : order.personalization.kind === "cuadro-jesus" ? (
+          <p className="text-sm text-muted">Cuadro de Jesús — not personalized, ship from stock.</p>
         ) : (
           <div className="text-sm space-y-2">
             <p>Pet name: {order.personalization.petName}</p>

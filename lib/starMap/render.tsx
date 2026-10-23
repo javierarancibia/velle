@@ -1,9 +1,24 @@
+import fs from "node:fs";
+import path from "node:path";
 import { ImageResponse } from "next/og";
-import { projectBackgroundStars, projectConstellationLines, projectVisibleStars } from "./astronomy";
+import {
+  projectBackgroundStars,
+  projectConstellationLines,
+  projectVisibleStars,
+} from "./astronomy";
 import type { PersonalizationStarMap, StarMapTheme } from "../types";
 
 interface ThemeStyle {
   pageBackground: string;
+  // Optional full-bleed photographic background (path under /public), used
+  // by "galaxy" instead of a flat/gradient pageBackground. Loaded once and
+  // cached as a data URI -- see backgroundImageDataUri() below.
+  backgroundImage?: string;
+  // Optional distinct fill for the star-circle disc itself, when it should
+  // read as a different tone than the page around it (e.g. "white-circle":
+  // a black disc on a white page). Omit for themes where the circle is the
+  // same tone as the page (the star field just sits directly on it).
+  circleFill?: string;
   border: string;
   star: string;
   line: string;
@@ -11,6 +26,47 @@ interface ThemeStyle {
   title: string;
   message: string;
   caption: string;
+}
+
+// Background photos are a few hundred KB -- cheap to base64-embed once per
+// cold start and reuse across every render, rather than re-reading disk on
+// every request.
+const backgroundImageCache = new Map<string, string>();
+function backgroundImageDataUri(relPath: string): string {
+  const cached = backgroundImageCache.get(relPath);
+  if (cached) return cached;
+  const abs = path.join(process.cwd(), "public", relPath);
+  const buf = fs.readFileSync(abs);
+  const ext = path.extname(relPath).toLowerCase();
+  const mime =
+    ext === ".jpg" || ext === ".jpeg"
+      ? "image/jpeg"
+      : ext === ".webp"
+        ? "image/webp"
+        : "image/png";
+  const uri = `data:${mime};base64,${buf.toString("base64")}`;
+  backgroundImageCache.set(relPath, uri);
+  return uri;
+}
+
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+// "2019-06-15" -> "JUNE 15, 2019"
+function formatDateLine(dateStr: string): string {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return `${MONTHS[(m ?? 1) - 1]?.toUpperCase() ?? ""} ${d}, ${y}`.trim();
 }
 
 const THEME_STYLES: Record<StarMapTheme, ThemeStyle> = {
@@ -25,14 +81,18 @@ const THEME_STYLES: Record<StarMapTheme, ThemeStyle> = {
     caption: "rgba(255,255,255,0.55)",
   },
   "deep-blue": {
-    pageBackground: "#0a1636",
-    border: "rgba(255,255,255,0.3)",
+    // Warm navy-slate, not near-black -- matches the reference creative
+    // (creative-2-1x1-1789302792119.png) rather than the previous near-navy
+    // that read closer to "midnight". Cream text (not white) throughout,
+    // per the same reference.
+    pageBackground: "#212b3f",
+    border: "rgba(244,234,214,0.3)",
     star: "#ffffff",
-    line: "rgba(255,255,255,0.32)",
-    compass: "rgba(255,255,255,0.55)",
-    title: "#ffffff",
-    message: "rgba(255,255,255,0.75)",
-    caption: "rgba(255,255,255,0.55)",
+    line: "rgba(244,234,214,0.32)",
+    compass: "rgba(244,234,214,0.55)",
+    title: "#f0e4c8",
+    message: "rgba(240,228,200,0.8)",
+    caption: "rgba(240,228,200,0.65)",
   },
   black: {
     pageBackground: "#000000",
@@ -55,22 +115,48 @@ const THEME_STYLES: Record<StarMapTheme, ThemeStyle> = {
     caption: "rgba(30,26,20,0.55)",
   },
   galaxy: {
-    // One continuous nebula behind the whole poster (not just inside the
-    // circle, per the reference), so it reads as one image rather than a
-    // disc pasted on a background.
-    pageBackground:
-      "radial-gradient(circle at 30% 20%, rgba(120,60,180,0.6) 0%, rgba(120,60,180,0) 42%), " +
-      "radial-gradient(circle at 75% 65%, rgba(40,80,190,0.55) 0%, rgba(40,80,190,0) 48%), " +
-      "radial-gradient(circle at 55% 85%, rgba(200,80,140,0.35) 0%, rgba(200,80,140,0) 38%), " +
-      "radial-gradient(circle at 15% 80%, rgba(60,100,200,0.4) 0%, rgba(60,100,200,0) 40%), " +
-      "#0a0e24",
-    border: "rgba(255,255,255,0.35)",
+    // Real Milky Way astrophotography (Gemini-generated once, cached to
+    // /public/images/star-map/milky-way-bg.png) instead of a flat gradient
+    // approximation -- the gradient read as "fake"/too-perfect. pageBackground
+    // stays as a dark fallback tone in case the file is ever missing.
+    pageBackground: "#0a0a14",
+    backgroundImage: "/images/star-map/milky-way-bg.png",
+    // Same deep-blue disc as the "deep-blue" theme's page, sitting on top of
+    // the Milky Way photo -- the photo only shows through the margin
+    // around the circle, not behind the star chart itself.
+    circleFill: "#212b3f",
+    border: "rgba(244,234,214,0.35)",
     star: "#ffffff",
-    line: "rgba(255,255,255,0.3)",
-    compass: "rgba(255,255,255,0.6)",
-    title: "#ffffff",
-    message: "rgba(255,255,255,0.8)",
-    caption: "rgba(255,255,255,0.6)",
+    line: "rgba(244,234,214,0.3)",
+    compass: "rgba(244,234,214,0.6)",
+    title: "#f0e4c8",
+    message: "rgba(240,228,200,0.85)",
+    caption: "rgba(240,228,200,0.65)",
+  },
+  "white-circle": {
+    // White page, the star circle itself filled as a near-black disc --
+    // two-tone, like a photo mounted on white matting.
+    pageBackground: "#ffffff",
+    circleFill: "#111111",
+    border: "rgba(255,255,255,0.4)",
+    star: "#ffffff",
+    line: "rgba(255,255,255,0.35)",
+    compass: "rgba(20,20,20,0.55)",
+    title: "#1a1a1a",
+    message: "rgba(26,26,26,0.72)",
+    caption: "rgba(26,26,26,0.55)",
+  },
+  "white-lines": {
+    // Fully white, minimal -- thin dark linework directly on the page, no
+    // separate circle tone. The lightest, most minimal option.
+    pageBackground: "#ffffff",
+    border: "rgba(20,20,20,0.3)",
+    star: "#1a1a1a",
+    line: "rgba(20,20,20,0.38)",
+    compass: "rgba(20,20,20,0.5)",
+    title: "#1a1a1a",
+    message: "rgba(26,26,26,0.72)",
+    caption: "rgba(26,26,26,0.55)",
   },
 };
 
@@ -116,13 +202,25 @@ function toDate(personalization: PersonalizationStarMap): Date {
 
 export async function renderStarMapPng(
   personalization: PersonalizationStarMap,
-  size: { width: number; height: number } = { width: 1200, height: 1500 }
+  size: { width: number; height: number } = { width: 1200, height: 1500 },
 ): Promise<Buffer> {
   const date = toDate(personalization);
-  const stars = projectVisibleStars(date, personalization.lat, personalization.lon);
-  const backgroundStars = projectBackgroundStars(date, personalization.lat, personalization.lon);
-  const lines = projectConstellationLines(date, personalization.lat, personalization.lon);
-  const theme = THEME_STYLES[personalization.theme ?? "midnight"];
+  const stars = projectVisibleStars(
+    date,
+    personalization.lat,
+    personalization.lon,
+  );
+  const backgroundStars = projectBackgroundStars(
+    date,
+    personalization.lat,
+    personalization.lon,
+  );
+  const lines = projectConstellationLines(
+    date,
+    personalization.lat,
+    personalization.lon,
+  );
+  const theme = THEME_STYLES[personalization.theme ?? "galaxy"];
 
   // The whole compass -- star circle + tick marks + labels -- now lives in
   // one 100x100-unit viewBox, center (50,50). Radii below are fractions of
@@ -135,11 +233,13 @@ export async function renderStarMapPng(
   const TICK_MINOR_R2 = 44.9;
   const TICK_MAJOR_R2 = 45.6;
   const DEGREE_LABEL_R = 46.5;
-  const DIRECTION_LABEL_R = 48.3; // needs real separation from DEGREE_LABEL_R -- they land on
-  // the same angle at the cardinals (0/90/180/270), so too tight a gap here
-  // makes "North"/"0" (etc) collide -- the cardinal degree number is dropped
-  // below instead of relying on gap alone
   const OUTER_RING_R = 49.5;
+  // Now sits outside the outer ring (49.5) rather than just inside it --
+  // each label is also rotated tangent to the circle (see COMPASS_POINTS
+  // render below), so it reads like text curved around the ring rather than
+  // upright text stacked on top of it. Kept close (49.5 -> 51.5, a tight
+  // ~2-unit gap) rather than floating further out in the page margin.
+  const DIRECTION_LABEL_R = 51.5;
   const STAR_SCALE = STAR_R / 32; // keep star point sizes visually consistent as STAR_R changes
 
   // BUG FIX: this used to be `Math.min(size.width, size.height * 0.72)` --
@@ -150,7 +250,10 @@ export async function renderStarMapPng(
   // width, with room reserved below for the (now larger, ring-inclusive)
   // compass and the title/caption text under it.
   const PAGE_PADDING = 48;
-  const compassSize = Math.min(size.width - PAGE_PADDING * 2, size.height * 0.62);
+  const compassSize = Math.min(
+    size.width - PAGE_PADDING * 2,
+    size.height * 0.62,
+  );
 
   // Star positions arrive as 0..1 fractions of the *old* full-square disc;
   // remap that same relative offset-from-center into the smaller STAR_R
@@ -175,16 +278,41 @@ export async function renderStarMapPng(
     .join(" ");
 
   const image = new ImageResponse(
-    (
+    <div
+      style={{
+        width: size.width,
+        height: size.height,
+        position: "relative",
+        display: "flex",
+        background: theme.pageBackground,
+      }}
+    >
+      {theme.backgroundImage ? (
+        // eslint-disable-next-line @next/next/no-img-element -- Satori (next/og) requires a plain <img>, not next/image
+        <img
+          src={backgroundImageDataUri(theme.backgroundImage)}
+          alt=""
+          width={size.width}
+          height={size.height}
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: size.width,
+            height: size.height,
+            objectFit: "cover",
+          }}
+        />
+      ) : null}
       <div
         style={{
+          position: "relative",
           width: size.width,
           height: size.height,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "flex-start",
-          background: theme.pageBackground,
           padding: PAGE_PADDING,
         }}
       >
@@ -203,8 +331,21 @@ export async function renderStarMapPng(
             viewBox="0 0 100 100"
             style={{ position: "absolute", left: 0, top: 0 }}
           >
+            {/* Two-tone themes (e.g. "white-circle"): fill the star disc a
+                different tone than the page before anything else draws. */}
+            {theme.circleFill ? (
+              <circle cx={50} cy={50} r={STAR_R} fill={theme.circleFill} />
+            ) : null}
+
             {/* Star circle boundary */}
-            <circle cx={50} cy={50} r={STAR_R} fill="none" stroke={theme.border} strokeWidth={0.25} />
+            <circle
+              cx={50}
+              cy={50}
+              r={STAR_R}
+              fill="none"
+              stroke={theme.border}
+              strokeWidth={0.25}
+            />
 
             {/* Constellation lines and the ~1600-star background field were
                 previously ~2300 separate <line>/<circle> elements -- Satori
@@ -220,7 +361,7 @@ export async function renderStarMapPng(
                 d={lines
                   .map(
                     (seg) =>
-                      `M${toViewX(seg.x1)},${toViewY(seg.y1)}L${toViewX(seg.x2)},${toViewY(seg.y2)}`
+                      `M${toViewX(seg.x1)},${toViewY(seg.y1)}L${toViewX(seg.x2)},${toViewY(seg.y2)}`,
                   )
                   .join(" ")}
                 stroke={theme.line}
@@ -230,11 +371,14 @@ export async function renderStarMapPng(
             ) : null}
 
             {Object.entries(
-              backgroundStars.reduce<Record<string, typeof backgroundStars>>((buckets, star) => {
-                const bucket = (Math.round(star.mag * 2) / 2).toFixed(1); // group every 0.5 mag
-                (buckets[bucket] ??= []).push(star);
-                return buckets;
-              }, {})
+              backgroundStars.reduce<Record<string, typeof backgroundStars>>(
+                (buckets, star) => {
+                  const bucket = (Math.round(star.mag * 2) / 2).toFixed(1); // group every 0.5 mag
+                  (buckets[bucket] ??= []).push(star);
+                  return buckets;
+                },
+                {},
+              ),
             ).map(([bucket, group]) => {
               const mag = Number(bucket);
               const r = Math.max(0.08, 0.35 - mag * 0.045) * STAR_SCALE;
@@ -246,7 +390,14 @@ export async function renderStarMapPng(
                   return `M${cx - r},${cy}a${r},${r} 0 1,0 ${2 * r},0a${r},${r} 0 1,0 ${-2 * r},0`;
                 })
                 .join(" ");
-              return <path key={`bg-${bucket}`} d={d} fill={theme.star} opacity={opacity} />;
+              return (
+                <path
+                  key={`bg-${bucket}`}
+                  d={d}
+                  fill={theme.star}
+                  opacity={opacity}
+                />
+              );
             })}
 
             {stars.map((star) => {
@@ -268,9 +419,26 @@ export async function renderStarMapPng(
                 them to <path>") -- the degree/direction labels below are
                 plain HTML divs absolutely positioned over this SVG instead,
                 using the same pointOnRing() math converted to pixels. */}
-            <path d={minorTickPath} stroke={theme.compass} strokeWidth={0.2} fill="none" />
-            <path d={majorTickPath} stroke={theme.compass} strokeWidth={0.3} fill="none" />
-            <circle cx={50} cy={50} r={OUTER_RING_R} fill="none" stroke={theme.compass} strokeWidth={0.25} />
+            <path
+              d={minorTickPath}
+              stroke={theme.compass}
+              strokeWidth={0.2}
+              fill="none"
+            />
+            <path
+              d={majorTickPath}
+              stroke={theme.compass}
+              strokeWidth={0.3}
+              fill="none"
+            />
+            <circle
+              cx={50}
+              cy={50}
+              r={OUTER_RING_R}
+              fill="none"
+              stroke={theme.compass}
+              strokeWidth={0.25}
+            />
           </svg>
 
           {Array.from({ length: 12 }, (_, i) => i * 30)
@@ -279,36 +447,44 @@ export async function renderStarMapPng(
             // "South"/"West", which already mark that same angle.
             .filter((deg) => deg % 90 !== 0)
             .map((deg) => {
-            const p = pointOnRing(deg, DEGREE_LABEL_R);
-            const fontSize = compassSize * 0.012;
-            const boxW = compassSize * 0.05;
-            const boxH = fontSize * 1.4;
-            return (
-              <div
-                key={`deg-${deg}`}
-                style={{
-                  position: "absolute",
-                  left: (p.x / 100) * compassSize - boxW / 2,
-                  top: (p.y / 100) * compassSize - boxH / 2,
-                  width: boxW,
-                  height: boxH,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize,
-                  color: theme.compass,
-                }}
-              >
-                {deg}
-              </div>
-            );
-          })}
+              const p = pointOnRing(deg, DEGREE_LABEL_R);
+              const fontSize = compassSize * 0.012;
+              const boxW = compassSize * 0.05;
+              const boxH = fontSize * 1.4;
+              return (
+                <div
+                  key={`deg-${deg}`}
+                  style={{
+                    position: "absolute",
+                    left: (p.x / 100) * compassSize - boxW / 2,
+                    top: (p.y / 100) * compassSize - boxH / 2,
+                    width: boxW,
+                    height: boxH,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize,
+                    color: theme.compass,
+                  }}
+                >
+                  {deg}
+                </div>
+              );
+            })}
 
           {COMPASS_POINTS.map((pt) => {
             const p = pointOnRing(pt.angle, DIRECTION_LABEL_R);
             const fontSize = compassSize * 0.0135;
             const boxW = compassSize * 0.095;
             const boxH = fontSize * 1.4;
+            // Tangent-to-circle rotation: North/South stay horizontal
+            // (0deg), East/West stand fully sideways (90deg), everything
+            // between follows the curve. Mirrored on the bottom half
+            // (90deg < angle < 270deg) so South-side labels read normally
+            // instead of upside-down -- same convention as text curved
+            // around a badge/seal.
+            const rotation =
+              pt.angle > 90 && pt.angle < 270 ? pt.angle + 180 : pt.angle;
             return (
               <div
                 key={pt.label}
@@ -324,6 +500,7 @@ export async function renderStarMapPng(
                   fontSize,
                   letterSpacing: 0.5,
                   color: theme.compass,
+                  transform: `rotate(${rotation}deg)`,
                 }}
               >
                 {pt.label}
@@ -335,10 +512,12 @@ export async function renderStarMapPng(
         <div
           style={{
             marginTop: 40,
-            fontSize: 34,
+            fontSize: 30,
+            fontWeight: 600,
             color: theme.title,
-            letterSpacing: 2,
+            letterSpacing: 3,
             textTransform: "uppercase",
+            textAlign: "center",
             display: "flex",
           }}
         >
@@ -352,6 +531,7 @@ export async function renderStarMapPng(
               fontSize: 22,
               lineHeight: 1.4,
               color: theme.message,
+              textAlign: "center",
               display: "flex",
             }}
           >
@@ -359,20 +539,39 @@ export async function renderStarMapPng(
           </div>
         ) : null}
 
+        {/* Standardized 3-line block: TITLE (above) / DATE / PLACE -- every
+            theme uses this same structure now, matching the reference
+            creative (creative-2-1x1-1789302792119.png) rather than the
+            previous single "Place — date" caption line. */}
         <div
           style={{
             marginTop: 20,
-            fontSize: 18,
+            fontSize: 19,
+            fontWeight: 500,
             color: theme.caption,
-            letterSpacing: 1,
+            letterSpacing: 1.5,
+            textTransform: "uppercase",
             display: "flex",
           }}
         >
-          {`${personalization.locationLabel} — ${personalization.date}`}
+          {formatDateLine(personalization.date)}
+        </div>
+        <div
+          style={{
+            marginTop: 6,
+            fontSize: 19,
+            fontWeight: 500,
+            color: theme.caption,
+            letterSpacing: 1.5,
+            textTransform: "uppercase",
+            display: "flex",
+          }}
+        >
+          {personalization.locationLabel}
         </div>
       </div>
-    ),
-    { width: size.width, height: size.height }
+    </div>,
+    { width: size.width, height: size.height },
   );
 
   const arrayBuffer = await image.arrayBuffer();

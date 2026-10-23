@@ -46,10 +46,12 @@ const MUST_SHOW_UNTIL_Y = 830;
 
 const THEME_SWATCHES: Record<StarMapTheme, { label: string; swatch: string }> = {
   midnight: { label: "Midnight", swatch: "#0b0e1a" },
-  "deep-blue": { label: "Deep Blue", swatch: "#0a1636" },
+  "deep-blue": { label: "Deep Blue", swatch: "#212b3f" },
   black: { label: "Black", swatch: "#000000" },
   ivory: { label: "Ivory", swatch: "#f6f1e7" },
-  galaxy: { label: "Galaxy", swatch: "linear-gradient(135deg, #3a1c5c, #1c2f6b)" },
+  galaxy: { label: "Galaxy", swatch: "linear-gradient(180deg, #2a2440, #0a0a14)" },
+  "white-circle": { label: "White & Black", swatch: "linear-gradient(135deg, #ffffff 50%, #111111 50%)" },
+  "white-lines": { label: "White & Lines", swatch: "#ffffff" },
 };
 
 // Real physical area per size, used only to compute the honest "at Small's
@@ -462,7 +464,7 @@ export default function StarMapProductClient({ product, variants }: Props) {
                 className="w-9 h-9 rounded-full border-2 transition-colors"
                 style={{
                   background: THEME_SWATCHES[t].swatch,
-                  borderColor: theme === t ? "var(--accent)" : "transparent",
+                  borderColor: theme === t ? "var(--accent)" : "rgba(30,26,20,0.12)",
                 }}
               />
             ))}

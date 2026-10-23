@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { attachStripeSession, createPendingOrder, getProductBySlug, getVariantById } from "@/lib/db";
-import { SHIP_COUNTRIES, stripe } from "@/lib/stripe";
+import { SHIP_COUNTRIES, SHIP_COUNTRIES_CUADRO_JESUS, stripe } from "@/lib/stripe";
 import { checkoutRequestSchema } from "@/lib/validation";
 
 export async function POST(req: Request) {
@@ -50,7 +50,11 @@ export async function POST(req: Request) {
     metadata: { order_id: order.id, order_number: order.order_number },
     success_url: `${siteUrl}/checkout/success?order=${order.order_number}`,
     cancel_url: `${siteUrl}/products/${productSlug}`,
-    shipping_address_collection: { allowed_countries: SHIP_COUNTRIES },
+    shipping_address_collection: {
+      allowed_countries: productSlug === "cuadro-jesus" ? SHIP_COUNTRIES_CUADRO_JESUS : SHIP_COUNTRIES,
+    },
+    // The cuadro page is in Spanish; keep Stripe's own page in the same language.
+    locale: productSlug === "cuadro-jesus" ? "es" : undefined,
     automatic_tax: { enabled: true },
     customer_email: undefined,
   });
