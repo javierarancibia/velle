@@ -6,7 +6,7 @@ import { getActiveVariantsByProduct, getProductBySlug } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Cuadro Iluminado de Jesús — Velle",
+  title: "Cuadro 'La Luz de Jesús' — Velle",
   description:
     "Cuadro pintado a mano que se ilumina con una luz cálida y regulable. \"Siempre estaré contigo\" — Salmo 73:23.",
 };

@@ -1,4 +1,4 @@
--- Cuadro Iluminado de Jesús — Spanish-market lit frame (not a Gelato print).
+-- Cuadro 'La Luz de Jesús' — Spanish-market lit frame (not a Gelato print).
 -- Run this in the Supabase SQL editor after 0001_init.sql.
 --
 -- One size (17,5 x 23,5 cm), sold as 1 / 2 / 3-frame packs. The leading
@@ -7,7 +7,7 @@
 -- price on the 2- and 3-packs.
 
 insert into products (slug, name, description) values
-  ('cuadro-jesus', 'Cuadro Iluminado de Jesús',
+  ('cuadro-jesus', 'Cuadro ''La Luz de Jesús''',
    'Un cuadro pintado a mano que se ilumina con una luz cálida y regulable. "Siempre estaré contigo" — Salmo 73:23.');
 
 insert into product_variants (product_id, label, price_cents, currency)

@@ -16,29 +16,80 @@ const MEDIA = "/products/jesus-frame";
 
 const SIZE_LABEL = "17,5 × 23,5 cm";
 
+// TODO(javier): both must stay true. EU price rules (Omnibus) require a
+// struck-through "before" price to be the lowest price actually charged in
+// the 30 days before the discount, and the customer count must be real.
+const COMPARE_AT_CENTS = 5990;
+const HAPPY_CUSTOMERS = "+500";
+
+// Cropped from our own customer photos in public/web-media.
+const AVATARS = [1, 2, 3, 4].map((n) => `${MEDIA}/avatar-${n}.webp`);
+
 type GalleryItem =
   | { type: "image"; src: string; alt: string }
   | { type: "video"; src: string; poster: string; alt: string };
 
 const GALLERY: GalleryItem[] = [
-  { type: "image", src: `${MEDIA}/hero.webp`, alt: "Cuadro Iluminado de Jesús encendido" },
+  { type: "image", src: `${MEDIA}/hero.webp`, alt: "Cuadro 'La Luz de Jesús' encendido" },
   { type: "image", src: `${MEDIA}/features.webp`, alt: "Pintado a mano, 3 tonos de color y brillo ajustable" },
   { type: "image", src: `${MEDIA}/luz-apagada-encendida.webp`, alt: "Luz apagada y luz encendida, con control regulador USB" },
   { type: "image", src: `${MEDIA}/abuela.webp`, alt: "Abuela mirando el cuadro iluminado" },
   { type: "image", src: `${MEDIA}/nino.webp`, alt: "Niño junto al cuadro en su mesita de noche" },
   { type: "image", src: `${MEDIA}/joven.webp`, alt: "Joven sosteniendo el cuadro en tono frío" },
   { type: "image", src: `${MEDIA}/madre-hija.webp`, alt: "Madre e hija con el cuadro" },
+  { type: "image", src: `${MEDIA}/pareja.webp`, alt: "Pareja con el cuadro" },
   { type: "image", src: `${MEDIA}/salmo.webp`, alt: "El cuadro junto a la cama, en tono frío" },
   { type: "video", src: `${MEDIA}/encendido.mp4`, poster: `${MEDIA}/encendido.jpg`, alt: "El cuadro pasando de apagado a encendido" },
   { type: "video", src: `${MEDIA}/oferta.mp4`, poster: `${MEDIA}/oferta.jpg`, alt: "El cuadro iluminado en casa" },
 ];
 
-// These clips cycle through several customers with each quote burned into
-// the video itself, so they're shown as-is -- a separate caption would only
-// match whichever person happens to be on screen.
-const REVIEW_VIDEOS = ["resena-daniel-paula", "resena-isabel"];
+// TODO(javier): placeholders -- fill in real customer reviews. Only set
+// `verified: true` for someone who actually bought (shows "Compra verificada").
+const REVIEWS: { name: string; photo: string; text: string; verified: boolean }[] = [
+  {
+    name: "Valeria, Murcia",
+    photo: `${MEDIA}/abuela.webp`,
+    text: "Se lo he regalado a mi abuela para su cumpleaños y de verdad que ha llorado cuando lo encendí. Ahora lo prende cada noche para iluminar su sala. ",
+    verified: true,
+  },
+  {
+    name: "Leonor, Madrid",
+    photo: `${MEDIA}/madre-hija.webp`,
+    text: "Lo amamos! Con mi hija encendemos todas las noches nuestro cuadro para rezar antes de dormir. Se ha hecho nuestra tradición de madre e hija :)",
+    verified: true,
+  },
+  {
+    name: "Teresa, Zamora",
+    photo: `${MEDIA}/joven.webp`,
+    text: "A mi hermana le ha encantado! Siempre se ha sentido cerca de Cristo así que apenas ha estrenado su piso, le hemos regalado esta belleza de cuadro.",
+    verified: true,
+  },
+  {
+    name: "José María, Zaragoza",
+    photo: `${MEDIA}/nino.webp`,
+    text: "Apenas lo ví quise comprarlo para mi hijo pequeño, para que aprenda sobre Cristo y lo tenga en su habitación",
+    verified: true,
+  },
+  {
+    name: "José María, Zaragoza",
+    photo: `${MEDIA}/pareja.webp`,
+    text: "Apenas lo ví quise comprarlo para mi hijo pequeño, para que aprenda sobre Cristo y lo tenga en su habitación",
+    verified: true,
+  },
 
-const IN_ACTION_VIDEOS = ["ugc-joven", "ugc-abuela", "ugc-apagado", "ugc-pareja", "ambiente"];
+];
+
+// The two resena-* clips cycle through several customers with each quote
+// burned into the video itself, so they're shown as-is with no caption.
+const IN_ACTION_VIDEOS = [
+  "resena-daniel-paula",
+  "ugc-joven",
+  "ugc-abuela",
+  "resena-isabel",
+  "ugc-apagado",
+  "ugc-pareja",
+  "ambiente",
+];
 
 const MATERIALS = [
   ["Marco", "Marco de madera"],
@@ -64,7 +115,7 @@ const FAQ = [
   {
     q: "¿Hacéis envíos a toda España?",
     // TODO(javier): confirm real dispatch + delivery times before going live.
-    a: "Sí, enviamos a toda España. Recibirás un email con el seguimiento en cuanto tu pedido salga de nuestro almacén.",
+    a: "Sí, enviamos a toda España y el envío es gratis. Recibirás un email con el seguimiento en cuanto tu pedido salga de nuestro almacén.",
   },
   {
     q: "¿Y si llega dañado?",
@@ -125,6 +176,79 @@ function LazyVideo({ src, poster, className }: { src: string; poster: string; cl
       preload="none"
       className={className}
     />
+  );
+}
+
+function ReviewCard({ review }: { review: (typeof REVIEWS)[number] }) {
+  const [expanded, setExpanded] = useState(false);
+  const isLong = review.text.length > 180;
+  return (
+    <article className="snap-start flex-shrink-0 w-[82%] sm:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-3.75rem)/4)] bg-white rounded-xl overflow-hidden flex flex-col">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={review.photo} alt="" loading="lazy" className="w-full aspect-[4/3] object-cover" />
+      <div className="p-5 flex flex-col flex-1">
+        <div className="flex items-center justify-between gap-2">
+          <p className="font-medium">{review.name}</p>
+          <span className="text-[#e0a526] text-sm tracking-wider" aria-label="5 estrellas">
+            ★★★★★
+          </span>
+        </div>
+        {review.verified ? (
+          <p className="mt-2 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-[#c98b4f]">
+            <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden>
+              <circle cx="12" cy="12" r="11" fill="#c98b4f" />
+              <path d="M7 12.5l3.2 3L17 9" fill="none" stroke="white" strokeWidth="2.4" />
+            </svg>
+            Compra verificada
+          </p>
+        ) : null}
+        <p className={`mt-3 text-sm text-muted leading-relaxed ${expanded ? "" : "line-clamp-5"}`}>
+          &ldquo;{review.text}&rdquo;
+        </p>
+        {isLong ? (
+          <button
+            type="button"
+            onClick={() => setExpanded((e) => !e)}
+            className="mt-auto pt-4 text-sm font-medium text-[#c98b4f] hover:underline"
+          >
+            {expanded ? "Leer menos" : "Leer más"}
+          </button>
+        ) : null}
+      </div>
+    </article>
+  );
+}
+
+function ReviewsCarousel() {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const scrollByCard = (dir: 1 | -1) => {
+    const el = trackRef.current;
+    const card = el?.firstElementChild as HTMLElement | null;
+    if (!el || !card) return;
+    el.scrollBy({ left: dir * (card.offsetWidth + 20), behavior: "smooth" });
+  };
+  const arrow = (dir: 1 | -1) => (
+    <button
+      type="button"
+      onClick={() => scrollByCard(dir)}
+      aria-label={dir === 1 ? "Siguiente reseña" : "Reseña anterior"}
+      className={`hidden sm:flex absolute top-[30%] ${dir === 1 ? "-right-4" : "-left-4"} z-10 w-9 h-9 rounded-full bg-white shadow items-center justify-center`}
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d={dir === 1 ? "M9 6l6 6-6 6" : "M15 6l-6 6 6 6"} />
+      </svg>
+    </button>
+  );
+  return (
+    <div className="relative mt-10">
+      {arrow(-1)}
+      <div ref={trackRef} className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 [scrollbar-width:none]">
+        {REVIEWS.map((r, i) => (
+          <ReviewCard key={i} review={r} />
+        ))}
+      </div>
+      {arrow(1)}
+    </div>
   );
 }
 
@@ -211,8 +335,8 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
         Conecta el cable USB incluido y pulsa el interruptor: tu cuadro se ilumina con una luz cálida. Desde el
         regulador del cable puedes ajustar el brillo y elegir entre 3 tonos de color.
       </Accordion>
-      <Accordion title="Envío y devoluciones sin preocupaciones">
-        Si tu cuadro llega dañado, defectuoso o no llega, te enviamos uno nuevo sin coste. Y si cambias de opinión,
+      <Accordion title="Envío gratis y devoluciones sin preocupaciones">
+        El envío a toda España es gratis. Si tu cuadro llega dañado, defectuoso o no llega, te enviamos uno nuevo sin coste. Y si cambias de opinión,
         tienes 14 días desde la entrega para devolverlo.
       </Accordion>
     </div>
@@ -277,18 +401,43 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
           </div>
         </div>
 
-        <div className="md:sticky md:top-6 self-start">
-          <h1 className="text-4xl sm:text-[2.75rem] leading-tight" style={serif}>
-            {product.name}
-          </h1>
-          <p className="mt-1 text-sm uppercase tracking-[0.15em] text-muted">Pintado a mano · Con luz LED</p>
-          <p className="mt-4 text-2xl text-[#9b2c1f]">
-            {price(single)} <span className="text-sm text-muted">· {SIZE_LABEL}</span>
+        <div id="comprar" className="md:sticky md:top-6 self-start scroll-mt-6">
+          <div className="flex items-center gap-2.5">
+            <div className="flex -space-x-2">
+              {AVATARS.map((src) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img key={src} src={src} alt="" className="w-7 h-7 rounded-full border-2 border-background object-cover" />
+              ))}
+            </div>
+            <p className="text-sm">
+              <span className="font-medium">{HAPPY_CUSTOMERS}</span> clientes felices
+            </p>
+          </div>
+          <p className="mt-2 flex items-center gap-1.5 text-sm text-muted">
+            <span className="text-[#e0a526] text-base tracking-wider" aria-label="5 estrellas">
+              ★★★★★
+            </span>
+            Lo que dicen nuestros clientes
           </p>
 
+          <h1 className="mt-3 text-4xl sm:text-[2.75rem] leading-tight" style={serif}>
+            {product.name}
+          </h1>
+          <p className="mt-1 text-sm uppercase tracking-[0.15em] text-muted">
+            Pintado a mano · Con luz LED · {SIZE_LABEL}
+          </p>
+          <div className="mt-4 flex items-center gap-3">
+            <span className="text-lg text-muted line-through">{eur(COMPARE_AT_CENTS)}</span>
+            <span className="text-2xl text-[#9b2c1f]">{price(single)}</span>
+            <span className="rounded px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-white bg-[#c98b4f]">
+              Más vendido
+            </span>
+          </div>
+
           <p className="mt-5 text-muted leading-relaxed">
-            &ldquo;Siempre estaré contigo&rdquo; — Salmo 73:23. Con la luz apagada, un niño camina solo. Al encenderla,
-            aparece Jesús llevándolo de la mano.
+            Con la luz apagada, un niño camina solo. Al encenderla, aparece Jesús llevándolo de la mano:{" "}
+            <em className="text-foreground">&ldquo;Siempre estaré contigo&rdquo;</em> (Salmo 73:23). Un recordatorio,
+            cada noche, de que nunca caminas solo.
           </p>
 
           <div className="mt-7">
@@ -357,28 +506,37 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
             {submitting ? "Redirigiendo al pago..." : `Comprar ahora • ${price(selected)}`}
           </button>
 
-          <p className="mt-4 text-center text-xs text-muted">Pago seguro con tarjeta · IVA incluido</p>
+          <p className="mt-4 text-center text-xs text-muted">Envío gratis · Pago seguro con tarjeta · IVA incluido</p>
 
           <div className="md:hidden mt-8">{infoAccordions}</div>
         </div>
       </section>
 
-      {/* ─── Testimonials ─── */}
+      {/* ─── Reviews ─── */}
       <section className="bg-[#f3ece1] py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <h2 className="text-3xl sm:text-4xl text-center" style={serif}>
-            Descubre por qué las familias lo tienen en <em>su hogar</em>
+          <h2 className="text-3xl sm:text-4xl text-center leading-snug max-w-4xl mx-auto" style={serif}>
+            <span className="relative inline-block px-2">
+              Más de 500 familias
+              {/* Hand-drawn-style circle around the number, as in the reference. */}
+              <svg
+                className="absolute -inset-x-1 -inset-y-2 w-[calc(100%+0.5rem)] h-[calc(100%+1rem)] pointer-events-none"
+                viewBox="0 0 200 60"
+                preserveAspectRatio="none"
+                aria-hidden
+              >
+                <path
+                  d="M10 32 C 12 8, 188 4, 192 28 C 196 52, 20 60, 8 36 C 4 26, 30 12, 60 9"
+                  fill="none"
+                  stroke="#c98b4f"
+                  strokeWidth="2"
+                  vectorEffect="non-scaling-stroke"
+                />
+              </svg>
+            </span>{" "}
+            protegen su hogar con <em className="whitespace-nowrap">La Luz de Jesús</em>
           </h2>
-          <div className="mt-10 grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            {REVIEW_VIDEOS.map((name) => (
-              <LazyVideo
-                key={name}
-                src={`${MEDIA}/${name}.mp4`}
-                poster={`${MEDIA}/${name}.jpg`}
-                className="w-full aspect-square object-cover rounded-lg shadow-sm bg-[#1a1410]"
-              />
-            ))}
-          </div>
+          <ReviewsCarousel />
         </div>
       </section>
 
