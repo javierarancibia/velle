@@ -43,17 +43,20 @@ XMAS1 cover swapped to `hero.png` (no Gemini mark, pushed in 85ab844): new creat
 ### Next session
 1. The user sends the new creatives. Add each as its own PAUSED ad set + ad (5 €/day, same settings as the test ad sets, buyers excluded, UTMs `nav26-test`).
 2. Review the result of the "Publicidad" check. If a boost is active, pause it once the user confirms.
-3. Confirm the start date. Activate the test and the retargeting campaign **only with the user's explicit OK**.
+3. Confirm "Velle" as DSA beneficiary and payor (the name shown in the EU ad transparency info) **before activating**. If it should be the legal company name, update every ad set.
+4. Confirm the start date. Activate the test and the retargeting campaign **only with the user's explicit OK**.
+5. Push commit `9bf6970` (docs and report script only) with the next push to `main`.
+
+### Before each phase
+- **User:** remove the watermarks from every creative before sending it.
+- **By 30 Nov:** set the Christmas delivery cut-off (last order date to arrive by 24 Dec) from real carrier times. Needed for image I2 and the "Llega para Nochebuena" copy, and for the announcement bar on velle.es.
+- **By 16 Dec:** set the Reyes cut-off (last order date to arrive by 6 Jan). Needed for image I3, and to decide when the Reyes ads stop.
 
 ### Answered 2026-10-26
 - **Delivery:** not in the 4 € unit cost; the courier costs 6–8 € per order and shipping is free for the customer. The budget now uses 7 € per order: break-even 34 € per sale, realistic profit about 2.700 €.
 - **Black Friday:** no extra discount for now; pack 3 only.
 - **AI disclosure:** ads won't be marked as AI. The user will remove every watermark from the creatives.
 - **Scripts:** `check.mjs` and `setup-test-phase.mjs` deleted; the Meta Ads MCP builds the campaigns. `npm run meta:report` stays.
-
-### Still open
-- Is "Velle" right as DSA beneficiary and payor?
-- Delivery cut-off dates for Christmas (24 Dec) and Reyes (6 Jan), to set when the ads stop.
 
 ### Once running (from the plan)
 - Daily check: per-ad cost per sale against the rules (target 18 €, pause at 36 € with no sale, stop-loss 30 €, break-even 34 €).
