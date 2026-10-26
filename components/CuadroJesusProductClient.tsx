@@ -30,7 +30,7 @@ type GalleryItem =
   | { type: "video"; src: string; poster: string; alt: string };
 
 const GALLERY: GalleryItem[] = [
-  { type: "image", src: `${MEDIA}/hero.webp`, alt: "Cuadro 'La Luz de Jesús' encendido" },
+  { type: "image", src: `${MEDIA}/hero.png`, alt: "Cuadro 'La Luz de Jesús' encendido" },
   { type: "image", src: `${MEDIA}/features.webp`, alt: "Pintado a mano, 3 tonos de color y brillo ajustable" },
   { type: "image", src: `${MEDIA}/luz-apagada-encendida.webp`, alt: "Luz apagada y luz encendida, con control regulador USB" },
   { type: "image", src: `${MEDIA}/abuela.webp`, alt: "Abuela mirando el cuadro iluminado" },
