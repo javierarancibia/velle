@@ -449,11 +449,21 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
 
           {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
 
+          {/* Keep this only while stock really is low: a false scarcity claim is a
+              banned practice under EU/Spanish consumer law. */}
+          <p className="mt-6 flex items-center justify-center gap-2 rounded-lg bg-[#fbeae6] px-4 py-2.5 text-sm font-medium text-[#9b2c1f]">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#9b2c1f] opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#9b2c1f]" />
+            </span>
+            Quedan pocas unidades
+          </p>
+
           <button
             type="button"
             onClick={() => handleBuy(selected)}
             disabled={submitting !== null}
-            className="mt-6 w-full rounded-full bg-accent text-white py-4 font-medium uppercase tracking-wide text-sm disabled:opacity-50"
+            className="mt-3 w-full rounded-full bg-accent text-white py-4 font-medium uppercase tracking-wide text-sm disabled:opacity-50"
           >
             {submitting ? "Redirigiendo al pago..." : `Comprar ahora • ${price(selected)}`}
           </button>
