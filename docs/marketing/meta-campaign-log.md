@@ -47,6 +47,15 @@ XMAS1 cover swapped to `hero.png` (no Gemini mark, pushed in 85ab844): new creat
 4. Confirm the start date. Activate the test and the retargeting campaign **only with the user's explicit OK**.
 5. Push commit `9bf6970` (docs and report script only) with the next push to `main`.
 
+### Checkout (added 2026-11-02)
+Past campaigns (Oct 2025 – Jun 2026) ran on the old store with COD (contrareembolso), 10–15% refused. velle.es is card-only (Stripe), so expect a higher cost per sale than those benchmarks.
+1. ~~**Bizum:** enabled in the Stripe dashboard (2 Nov); Checkout shows it automatically. Webhook now waits for confirmed payment (`async_payment_succeeded`). Trust line added under the buy button.~~ `checkout.session.async_payment_succeeded` is already on the webhook endpoint (confirmed by the user, 2 Nov). Still to do:
+   - [ ] Check Bizum is enabled in Stripe **live** mode, not only test mode.
+   - [ ] Check the webhook with that event is the **live** endpoint for `https://velle.es/api/webhooks/stripe`, and its signing secret matches `STRIPE_WEBHOOK_SECRET` in production.
+   - [ ] Deploy, make one real Bizum purchase on velle.es, check the order turns paid and the Meta Purchase event fires, then refund it.
+2. **7-day card-only test** from the day the test campaign goes live. Track add to cart → started checkout → purchase in Ads Manager each day.
+3. **Day 7 decision:** if many people start checkout but few pay, add COD (the warehouse offers it) as a second option with a 2–3 € surcharge. Otherwise stay card-only.
+
 ### Before each phase
 - **User:** remove the watermarks from every creative before sending it.
 - **By 30 Nov:** set the Christmas delivery cut-off (last order date to arrive by 24 Dec) from real carrier times. Needed for image I2 and the "Llega para Nochebuena" copy, and for the announcement bar on velle.es.
