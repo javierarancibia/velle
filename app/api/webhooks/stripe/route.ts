@@ -33,11 +33,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ received: true, duplicate: true });
   }
 
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
+  // Delayed-notification methods (e.g. Bizum, enabled in the Stripe dashboard)
+  // can complete the session before the money is confirmed: payment_status is
+  // then "unpaid" and the order is only paid on async_payment_succeeded.
+  const session =
+    event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded"
+      ? (event.data.object as Stripe.Checkout.Session)
+      : null;
+
+  if (session && session.payment_status !== "unpaid") {
     const orderId = session.metadata?.order_id;
     if (!orderId) {
-      console.error("checkout.session.completed with no order_id in metadata", session.id);
+      console.error(`${event.type} with no order_id in metadata`, session.id);
     } else {
       const order = await getOrderByStripeSessionId(session.id);
       if (!order) {

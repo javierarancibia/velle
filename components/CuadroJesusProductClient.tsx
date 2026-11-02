@@ -506,7 +506,10 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
             {submitting ? "Redirigiendo al pago..." : `Comprar ahora • ${price(selected)}`}
           </button>
 
-          <p className="mt-4 text-center text-xs text-muted">Envío gratis · Pago seguro con tarjeta · IVA incluido</p>
+          <p className="mt-4 text-center text-xs text-muted">Envío gratis · Pago seguro con tarjeta o Bizum · IVA incluido</p>
+          <p className="mt-1 text-center text-xs text-muted">
+            Si no llega o llega dañado, te enviamos otro gratis · 14 días de devolución
+          </p>
 
           <div className="md:hidden mt-8">{infoAccordions}</div>
         </div>
