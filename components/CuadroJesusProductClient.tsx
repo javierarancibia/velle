@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { COMPARE_AT_CENTS, HAPPY_CUSTOMERS, MEDIA, REVIEWS, SIZE_LABEL } from "@/lib/cuadroJesus";
 import { formatPrice } from "@/lib/format";
 import { trackMetaPixelEvent } from "@/lib/metaPixel";
 import type { ProductRow, ProductVariantRow } from "@/lib/types";
@@ -9,18 +10,6 @@ interface Props {
   product: ProductRow;
   variants: ProductVariantRow[]; // ordered by price_cents ascending
 }
-
-// Optimized copies of public/web-media (the originals are ~90MB of 1080p
-// video), re-encoded to 720p/no-audio H.264 + webp stills.
-const MEDIA = "/products/jesus-frame";
-
-const SIZE_LABEL = "17,5 × 23,5 cm";
-
-// TODO(javier): both must stay true. EU price rules (Omnibus) require a
-// struck-through "before" price to be the lowest price actually charged in
-// the 30 days before the discount, and the customer count must be real.
-const COMPARE_AT_CENTS = 5990;
-const HAPPY_CUSTOMERS = "+500";
 
 // Cropped from our own customer photos in public/web-media.
 const AVATARS = [1, 2, 3, 4].map((n) => `${MEDIA}/avatar-${n}.webp`);
@@ -41,42 +30,6 @@ const GALLERY: GalleryItem[] = [
   { type: "image", src: `${MEDIA}/salmo.webp`, alt: "El cuadro junto a la cama, en tono frío" },
   { type: "video", src: `${MEDIA}/encendido.mp4`, poster: `${MEDIA}/encendido.jpg`, alt: "El cuadro pasando de apagado a encendido" },
   { type: "video", src: `${MEDIA}/oferta.mp4`, poster: `${MEDIA}/oferta.jpg`, alt: "El cuadro iluminado en casa" },
-];
-
-// TODO(javier): placeholders -- fill in real customer reviews. Only set
-// `verified: true` for someone who actually bought (shows "Compra verificada").
-const REVIEWS: { name: string; photo: string; text: string; verified: boolean }[] = [
-  {
-    name: "Valeria, Murcia",
-    photo: `${MEDIA}/abuela.webp`,
-    text: "Se lo he regalado a mi abuela para su cumpleaños y de verdad que ha llorado cuando lo encendí. Ahora lo prende cada noche para iluminar su sala. ",
-    verified: true,
-  },
-  {
-    name: "Leonor, Madrid",
-    photo: `${MEDIA}/madre-hija.webp`,
-    text: "Lo amamos! Con mi hija encendemos todas las noches nuestro cuadro para rezar antes de dormir. Se ha hecho nuestra tradición de madre e hija :)",
-    verified: true,
-  },
-  {
-    name: "Teresa, Zamora",
-    photo: `${MEDIA}/joven.webp`,
-    text: "A mi hermana le ha encantado! Siempre se ha sentido cerca de Cristo así que apenas ha estrenado su piso, le hemos regalado esta belleza de cuadro.",
-    verified: true,
-  },
-  {
-    name: "José María, Zaragoza",
-    photo: `${MEDIA}/nino.webp`,
-    text: "Apenas lo ví quise comprarlo para mi hijo pequeño, para que aprenda sobre Cristo y lo tenga en su habitación",
-    verified: true,
-  },
-  {
-    name: "José María, Zaragoza",
-    photo: `${MEDIA}/pareja.webp`,
-    text: "Apenas lo ví quise comprarlo para mi hijo pequeño, para que aprenda sobre Cristo y lo tenga en su habitación",
-    verified: true,
-  },
-
 ];
 
 // The two resena-* clips cycle through several customers with each quote

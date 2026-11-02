@@ -38,12 +38,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo.png" alt="Velle" width={261} height={96} className="h-7 w-auto" />
             </Link>
+            {/* Star Map and Pet Portrait are off the nav while the store focuses on
+                the cuadro; their pages still work by direct link. */}
             <nav className="flex gap-6 text-sm text-muted">
-              <Link href="/products/star-map" className="hover:text-foreground transition-colors">
-                Star Map
-              </Link>
-              <Link href="/products/pet-portrait" className="hover:text-foreground transition-colors">
-                Pet Portrait
+              <Link href="/products/cuadro-jesus" className="hover:text-foreground transition-colors">
+                El cuadro
               </Link>
             </nav>
           </div>
@@ -52,8 +51,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <footer className="border-t border-border">
           <div className="mx-auto max-w-5xl px-6 py-8 text-xs text-muted flex items-center justify-between">
             <span>© {new Date().getFullYear()} Velle. Made to order.</span>
-            <Link href="/returns" className="hover:text-foreground transition-colors">
-              Guarantee &amp; Returns
+            {/* The store now sells the cuadro in Spain; /returns stays for the
+                personalized prints. */}
+            <Link href="/devoluciones" className="hover:text-foreground transition-colors">
+              Garantía y devoluciones
             </Link>
           </div>
         </footer>

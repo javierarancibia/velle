@@ -5,6 +5,11 @@ import { usePathname } from "next/navigation";
 // Promo strip above the header. Per-route because the copy is product- and
 // language-specific; routes without an entry render nothing.
 const BANNERS: Record<string, { text: string; cta: string; href: string }> = {
+  "/": {
+    text: "PAGA 2 Y RECIBE 3 CUADROS · ENVÍO GRATIS",
+    cta: "COMPRAR AHORA",
+    href: "/products/cuadro-jesus#comprar",
+  },
   "/products/cuadro-jesus": {
     text: "PAGA 2 Y RECIBE 3 CUADROS · ENVÍO GRATIS",
     cta: "COMPRAR AHORA",
