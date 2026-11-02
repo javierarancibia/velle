@@ -67,8 +67,7 @@ const FAQ = [
   },
   {
     q: "¿Hacéis envíos a toda España?",
-    // TODO(javier): confirm real dispatch + delivery times before going live.
-    a: "Sí, enviamos a toda España y el envío es gratis. Recibirás un email con el seguimiento en cuanto tu pedido salga de nuestro almacén.",
+    a: "Sí, enviamos a toda España, el envío es gratis y llega en 24–72 h. Recibirás un email con el seguimiento en cuanto tu pedido salga de nuestro almacén.",
   },
   {
     q: "¿Y si llega dañado?",

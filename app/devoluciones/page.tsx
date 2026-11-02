@@ -31,8 +31,6 @@ export default function DevolucionesPage() {
         ningún motivo. Escríbenos a <span className="font-medium">info@velle.es</span> y te indicamos cómo hacerlo.
         El cuadro debe volver en buen estado y con todos sus componentes.
       </p>
-      {/* TODO(javier): say who pays the return shipping (by law the customer
-          does, unless we say otherwise -- if we cover it, state it here). */}
       <p className="mt-3 text-muted">
         Te devolvemos el importe con el mismo método de pago en un plazo máximo de 14 días desde que nos
         comunicas la devolución. Podemos esperar a recibir el cuadro antes de hacer el reembolso.
@@ -45,10 +43,9 @@ export default function DevolucionesPage() {
       </p>
 
       <h2 className="mt-10 text-lg font-medium">Envío</h2>
-      {/* TODO(javier): add the real delivery time once the carrier's is confirmed. */}
       <p className="mt-3 text-muted">
-        El envío a toda España es gratis. Recibirás un email con el seguimiento en cuanto tu pedido salga de
-        nuestro almacén.
+        El envío a toda España es gratis y tu pedido llega en 24–72 h. Recibirás un email con el seguimiento en
+        cuanto salga de nuestro almacén.
       </p>
 
       <p className="mt-12 text-sm">

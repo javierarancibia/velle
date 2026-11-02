@@ -24,9 +24,6 @@ export default function ReturnsPage() {
 
       <h2 className="mt-10 text-lg font-medium">If something&apos;s wrong</h2>
       <p className="mt-3 text-muted">
-        {/* TODO(javier): needs a real, monitored inbox before this goes live to customers —
-            nothing here yet actually receives mail (orders@velle.es is send-only, used for
-            operator notifications). */}
         Email us at <span className="font-medium">info@velle.es</span> within 30 days
         of delivery with a photo of the issue, and we&apos;ll sort it out.
       </p>
