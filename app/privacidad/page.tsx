@@ -20,7 +20,7 @@ export default function PrivacidadPage() {
       <H2>Responsable</H2>
       <UL>
         <li>
-          {LEGAL.name} · NIF-IVA {LEGAL.taxId}
+          {LEGAL.name} («{LEGAL.tradeName}») · NIF-IVA {LEGAL.taxId}
         </li>
         <li>{LEGAL.address}</li>
         <li>
@@ -31,7 +31,7 @@ export default function PrivacidadPage() {
       <H2>Qué datos tratamos y para qué</H2>
       <UL>
         <li>
-          <span className="text-foreground">Para gestionar tu pedido:</span> nombre, email, teléfono si lo das,
+          <span className="text-foreground">Para gestionar tu pedido:</span> nombre, email, teléfono,
           dirección de envío, lo que has comprado y el importe. Los usamos para preparar y enviar tu cuadro,
           avisarte del envío, atender devoluciones y garantías, y emitir la factura. Base legal: el contrato de
           compra.

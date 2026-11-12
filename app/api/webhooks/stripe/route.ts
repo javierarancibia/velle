@@ -69,6 +69,7 @@ export async function POST(req: Request) {
                 city: shippingDetails.address.city,
                 postal_code: shippingDetails.address.postal_code,
                 country: shippingDetails.address.country,
+                phone: session.customer_details?.phone ?? null,
               }
             : customerAddress
               ? {
@@ -78,6 +79,7 @@ export async function POST(req: Request) {
                   city: customerAddress.city,
                   postal_code: customerAddress.postal_code,
                   country: customerAddress.country,
+                  phone: session.customer_details?.phone ?? null,
                 }
               : null,
           amount_total_cents: session.amount_total ?? null,

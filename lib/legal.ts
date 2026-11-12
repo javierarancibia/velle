@@ -7,6 +7,7 @@
 // stays velle.es.
 export const LEGAL = {
   name: "Javier Arancibia Reyes",
+  tradeName: "Javier Arancibia Digital Services",
   legalForm: "Empresario individual (eenmanszaak) registrado en los Países Bajos",
   registry: "Kamer van Koophandel (Registro Mercantil de los Países Bajos), nº 99757559",
   taxId: "NL005408177B13",

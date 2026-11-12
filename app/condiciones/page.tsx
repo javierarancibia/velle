@@ -14,7 +14,7 @@ export default function CondicionesPage() {
     <LegalPage title="Condiciones de venta">
       <P>
         Estas condiciones se aplican a las compras que hagas en {LEGAL.site}. Al hacer un pedido confirmas que las
-        has leído y las aceptas. El vendedor es {LEGAL.name}, con NIF-IVA {LEGAL.taxId} y dirección en {LEGAL.address}.
+        has leído y las aceptas. El vendedor es {LEGAL.name}, que opera como «{LEGAL.tradeName}», con NIF-IVA {LEGAL.taxId} y dirección en {LEGAL.address}.
         Puedes escribirnos a <Email />.
       </P>
 

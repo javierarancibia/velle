@@ -14,7 +14,7 @@ export default function AvisoLegalPage() {
         electrónico (LSSI), estos son los datos del titular de {LEGAL.site}:
       </P>
       <UL>
-        <li>Titular: {LEGAL.name}</li>
+        <li>Titular: {LEGAL.name}, que opera como «{LEGAL.tradeName}»</li>
         <li>Forma jurídica: {LEGAL.legalForm}</li>
         <li>Registro: {LEGAL.registry}</li>
         <li>NIF-IVA: {LEGAL.taxId}</li>

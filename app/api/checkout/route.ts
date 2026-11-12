@@ -58,6 +58,9 @@ export async function POST(req: Request) {
     // No Spanish IVA registration yet (decided 12 Nov 2026), so Stripe Tax is
     // off for the cuadro. Switch it back on once a registration is added in
     // Stripe > Tax.
+    // Couriers in Spain need a phone number for delivery; it lands in the
+    // order shipping_address via the webhook.
+    phone_number_collection: { enabled: productSlug === "cuadro-jesus" },
     automatic_tax: { enabled: productSlug !== "cuadro-jesus" },
     customer_email: undefined,
   });
