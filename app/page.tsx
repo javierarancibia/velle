@@ -8,9 +8,9 @@ import type { ProductVariantRow } from "@/lib/types";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Velle — Cuadro 'La Luz de Jesús', pintado a mano con luz",
+  title: "Velle — Cuadro 'La Luz de Jesús' que se ilumina",
   description:
-    "Apagado es un cuadro pintado a mano; al encenderlo aparece Jesús llevando a un niño de la mano. \"Siempre estaré contigo\" — Salmo 73:23. Envío gratis a toda España.",
+    "Apagado es un cuadro; al encenderlo aparece Jesús llevando a un niño de la mano. \"Siempre estaré contigo\" — Salmo 73:23. Envío gratis a toda España.",
 };
 
 const serif = { fontFamily: "var(--font-cuadro-serif), Georgia, serif" };
@@ -25,14 +25,14 @@ const FOR_WHOM = [
 ];
 
 const TRUST = [
-  "Pintado a mano",
+  "Marco de madera con luz LED",
   "Envío gratis a toda España",
   "Si llega dañado, te enviamos otro",
   "Pago con tarjeta o Bizum",
 ];
 
 const FEATURES = [
-  "Ilustración pintada a mano, bonita incluso apagada",
+  "Ilustración bonita incluso apagada",
   "Luz LED con 3 tonos de color",
   "Regulador en el cable: encendido, brillo y color",
   `${SIZE_LABEL}, para la mesita, una estantería o el salón`,

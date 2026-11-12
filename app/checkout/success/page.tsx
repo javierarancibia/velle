@@ -3,6 +3,10 @@ import TrackPurchase from "@/components/TrackPurchase";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "Gracias por tu pedido — Velle",
+};
+
 export default async function CheckoutSuccessPage({
   searchParams,
 }: {
@@ -19,11 +23,14 @@ export default async function CheckoutSuccessPage({
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-24 text-center">
-      <h1 className="text-3xl font-medium">Thank you</h1>
+      <h1 className="text-3xl font-medium">¡Gracias por tu pedido!</h1>
       <p className="mt-4 text-muted">
         {isPaid && order
-          ? `Your order ${order.order_number} is confirmed. We'll email you once it's on its way.`
-          : "We're confirming your payment — this can take a few seconds. We'll email you once it's on its way."}
+          ? `Tu pedido ${order.order_number} está confirmado. Lo preparamos y te llega en 24–72 h.`
+          : "Estamos confirmando tu pago. Puede tardar unos segundos; recarga la página en un momento."}
+      </p>
+      <p className="mt-3 text-sm text-muted">
+        ¿Alguna duda? Escríbenos a <span className="font-medium text-foreground">info@velle.es</span>.
       </p>
       {isPaid && order && order.amount_total_cents !== null && order.currency ? (
         <TrackPurchase

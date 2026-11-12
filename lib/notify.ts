@@ -16,11 +16,11 @@ export async function notifyOperatorOfPaidOrder(order: OrderRow): Promise<void> 
   await resend.emails.send({
     // Placeholder sender — replace with a real address on a domain verified
     // in Resend (e.g. orders@velle.es) before this actually sends.
-    from: "Velle Orders <orders@velle.es>",
+    from: "Velle Pedidos <orders@velle.es>",
     to,
-    subject: `New paid order ${order.order_number}`,
-    text: `A new order was paid.\n\nOrder: ${order.order_number}\nAmount: ${
-      order.amount_total_cents ? (order.amount_total_cents / 100).toFixed(2) : "?"
-    } ${order.currency?.toUpperCase() ?? ""}\n\nReview and send to Gelato: ${adminUrl}`,
+    subject: `Nuevo pedido pagado ${order.order_number}`,
+    text: `Se ha pagado un pedido nuevo.\n\nPedido: ${order.order_number}\nImporte: ${
+      order.amount_total_cents ? (order.amount_total_cents / 100).toFixed(2).replace(".", ",") : "?"
+    } ${order.currency?.toUpperCase() ?? ""}\n\nVer el pedido: ${adminUrl}`,
   });
 }

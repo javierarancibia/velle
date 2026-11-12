@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Cuadro 'La Luz de Jesús' — Velle",
   description:
-    "Cuadro pintado a mano que se ilumina con una luz cálida y regulable. \"Siempre estaré contigo\" — Salmo 73:23.",
+    "Cuadro con marco de madera que se ilumina con una luz cálida y regulable. \"Siempre estaré contigo\" — Salmo 73:23.",
 };
 
 export default async function CuadroJesusPage() {
