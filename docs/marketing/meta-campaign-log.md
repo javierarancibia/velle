@@ -40,12 +40,57 @@ XMAS1 cover swapped to `hero.png` (no Gemini mark, pushed in 85ab844): new creat
 
 ## To-dos
 
-### Next session
-1. The user sends the new creatives. Add each as its own PAUSED ad set + ad (5 €/day, same settings as the test ad sets, buyers excluded, UTMs `nav26-test`).
-2. Review the result of the "Publicidad" check. If a boost is active, pause it once the user confirms.
-3. Confirm "Velle" as DSA beneficiary and payor (the name shown in the EU ad transparency info) **before activating**. If it should be the legal company name, update every ad set.
-4. Confirm the start date. Activate the test and the retargeting campaign **only with the user's explicit OK**.
-5. Push commit `9bf6970` (docs and report script only) with the next push to `main`.
+### Launch day: Thu 12 Nov 2026 (goal: campaign live by end of day)
+
+Videos are in `Apps/Cuadro de Jesus/Ads/Campaña Noviembre 2026/<Ad folder>/`. Export rules agreed 11 Nov: 1080×1920, 30 fps, offer and captions just below the centre (≈55–65% height), white text with a black border (no black box). Reviews, "500 familias" and "Quedan pocas unidades" are real; V0 stays unedited.
+
+**Creative status (re-checked 12 Nov midday: all 14 files are 1080×1920, 30 fps, with audio)**
+
+| Ad | Status |
+| --- | --- |
+| 1A, 1B Abuela | ✅ Ready (1080p, offer moved up, lowercase fixed) |
+| 2A, 2B Abuelo | ✅ Ready (stray "·" gone from 2A) |
+| 3A, 3B, 3C Para quién es | ✅ Ready ("Paga 2 y lleva 3" on all three) |
+| 5A, 5B Reseñas | ✅ Ready. User to confirm the reviewer name "Clara Z., Madrid" (the owner's list has "Catalina Z. (Madrid)") |
+| 6A, 6B, 6C Antes de dormir | ✅ Ready. Intentional format test (user, 12 Nov): 6A has no offer end card; black-box captions with the offer near the top vs white + border below centre on the other ads. Compare caption format/position when reading results |
+| V6A Unboxing (retargeting) | ✅ Ready (offer "Paga 2 Lleva 3" near the top, fine for retargeting) |
+| V0 Lampara Jesus Ad 2 | ✅ Runs as is (already 1080p) |
+
+Optional, user's call: thicker border or soft shadow where text sits on the lit frame; open 2A on the hug clip to match "El abrazo que no esperaba".
+
+**User, morning**
+- [x] Fix 2A and re-export 5A, 5B, 6A, 6B, 6C, V6A.
+- [x] Reconnect the "Meta ads Velle" connector (working again in Claude Code, 12 Nov).
+- [x] Retargeting images approved (12 Nov).
+
+**Claude**
+- [x] Check the re-exported files (12 Nov: all 1080×1920, 30 fps).
+- [x] I1, I5, I6 made (4:5 + 9:16) from the real V6A unboxing footage (frame off/on) and the Ad1 Abuela clip: `Campaña Noviembre 2026/Imagenes Retargeting/`, rebuild with `src/build.mjs`.
+- [ ] Rebuild `ES_TEST_PROSPECCION_NAV26`, all PAUSED, 5 €/day per ad set (25 €/day), buyers excluded, UTMs `nav26-test` + per-ad `utm_content`, primary text and headlines from the creative plan:
+  - `ES_TEST_CONTROL`: V0
+  - `ES_TEST_ABUELOS`: 1A, 1B, 2A, 2B
+  - `ES_TEST_MONTAJE`: 3A, 3B, 3C
+  - `ES_TEST_RESENAS`: 5A, 5B
+  - `ES_TEST_NINO`: 6A, 6B, 6C
+- [ ] Ask the user before touching the old 10-26 ad sets (V0_REGALO, V0_PRESENCIA, V0_PACK, XMAS1, V5_ASMR): proposal is to reuse V0_REGALO as `ES_TEST_CONTROL` and archive the other four.
+- [ ] Retargeting `ES_RT_C_WARM` (5 €/day): swap in V6A + the 3 images; keep or drop `ES_RT_V0_PACK` per the user.
+- [ ] Set the start date to 12 Nov (ad sets are still scheduled for 2 Nov).
+- [ ] Show the full structure to the user, then activate **only with their explicit OK**.
+
+**Website before launch (added 11 Nov night; the site has none of these yet)**
+- [ ] **Stripe live setup:** live keys in production env, Bizum enabled in live mode, live webhook `https://velle.es/api/webhooks/stripe` with `checkout.session.completed` + `async_payment_succeeded`, signing secret = `STRIPE_WEBHOOK_SECRET`. Business details, statement descriptor and payout account complete in the Stripe dashboard.
+- [ ] **Real test purchase** (card and Bizum) on velle.es: order turns paid, confirmation email arrives, Meta Purchase event fires with the right value. Refund it.
+- [ ] **Legal pages** (Spanish law, also checked by Stripe and Meta): Aviso legal (LSSI: owner name, NIF, address, email), Política de privacidad (RGPD), Política de cookies, Condiciones generales de venta (prices with IVA, delivery 24–72 h, 14-day desistimiento + withdrawal form, guarantee, link to /devoluciones). Links in the footer and at checkout. Needs from the user: legal name, NIF/CIF, postal address, contact email.
+- [x] **Cookie banner** (12 Nov, not deployed yet): Meta Pixel loads only after "Aceptar"; Rechazar/Aceptar same weight, Configurar per purpose, footer "Configurar cookies" to withdraw (deletes _fbp/_fbc), /cookies policy page. No server-side Conversions API yet, so visitors who reject aren't counted.
+- [ ] **Final touches:** user to list them; check mobile checkout end to end, the "Quedan pocas unidades" banner, and that every ad's `utm_content` lands on `/products/cuadro-jesus`.
+
+**Still open from before (needed before activating)**
+- [ ] Confirm "Velle" as DSA beneficiary and payor, or the legal company name.
+- [ ] Bizum in Stripe **live** mode, live webhook endpoint + secret, and one real test purchase that fires the Meta Purchase event (see Checkout below).
+- [ ] "Publicidad" check on the Instagram post: pause any active boost once the user confirms.
+- [ ] Push commit `9bf6970` (docs and report script only) with the next push to `main`.
+
+**After launch:** Black Friday phase starts 20 Nov; V9 (cut from the phase 1 winner) and image I4 are due 18 Nov.
 
 ### Checkout (added 2026-11-02)
 Past campaigns (Oct 2025 – Jun 2026) ran on the old store with COD (contrareembolso), 10–15% refused. velle.es is card-only (Stripe), so expect a higher cost per sale than those benchmarks.
