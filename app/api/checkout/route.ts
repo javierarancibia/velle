@@ -55,7 +55,10 @@ export async function POST(req: Request) {
     },
     // The cuadro page is in Spanish; keep Stripe's own page in the same language.
     locale: productSlug === "cuadro-jesus" ? "es" : undefined,
-    automatic_tax: { enabled: true },
+    // No Spanish IVA registration yet (decided 12 Nov 2026), so Stripe Tax is
+    // off for the cuadro. Switch it back on once a registration is added in
+    // Stripe > Tax.
+    automatic_tax: { enabled: productSlug !== "cuadro-jesus" },
     customer_email: undefined,
   });
 

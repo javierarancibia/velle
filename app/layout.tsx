@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import MetaPixel from "@/components/MetaPixel";
+import CookieBanner, { CookieSettingsLink } from "@/components/CookieBanner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,15 +17,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Velle — Keepsakes made from your own story",
+  title: "Velle — Cuadro 'La Luz de Jesús'",
   description:
-    "Custom pet portraits and star maps, printed as a personal keepsake. Made from your photo or your moment, not a template.",
+    "Cuadro con luz de Jesús y el niño: apagado es una ilustración, encendido aparece Jesús. \"Siempre estaré contigo\" — Salmo 73:23. Envío gratis a toda España.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="en"
+      lang="es"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
@@ -49,15 +50,31 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </header>
         <main className="flex-1">{children}</main>
         <footer className="border-t border-border">
-          <div className="mx-auto max-w-5xl px-6 py-8 text-xs text-muted flex items-center justify-between">
-            <span>© {new Date().getFullYear()} Velle. Made to order.</span>
+          <div className="mx-auto max-w-5xl px-6 py-8 text-xs text-muted flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <span>© {new Date().getFullYear()} Velle</span>
             {/* The store now sells the cuadro in Spain; /returns stays for the
                 personalized prints. */}
-            <Link href="/devoluciones" className="hover:text-foreground transition-colors">
-              Garantía y devoluciones
-            </Link>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 sm:justify-end">
+              <Link href="/devoluciones" className="hover:text-foreground transition-colors">
+                Garantía y devoluciones
+              </Link>
+              <Link href="/condiciones" className="hover:text-foreground transition-colors">
+                Condiciones de venta
+              </Link>
+              <Link href="/privacidad" className="hover:text-foreground transition-colors">
+                Privacidad
+              </Link>
+              <Link href="/aviso-legal" className="hover:text-foreground transition-colors">
+                Aviso legal
+              </Link>
+              <Link href="/cookies" className="hover:text-foreground transition-colors">
+                Cookies
+              </Link>
+              <CookieSettingsLink className="hover:text-foreground transition-colors" />
+            </div>
           </div>
         </footer>
+        <CookieBanner />
       </body>
     </html>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { COMPARE_AT_CENTS, HAPPY_CUSTOMERS, MEDIA, REVIEWS, SIZE_LABEL } from "@/lib/cuadroJesus";
 import { formatPrice } from "@/lib/format";
@@ -20,7 +21,7 @@ type GalleryItem =
 
 const GALLERY: GalleryItem[] = [
   { type: "image", src: `${MEDIA}/hero.png`, alt: "Cuadro 'La Luz de Jesús' encendido" },
-  { type: "image", src: `${MEDIA}/features.webp`, alt: "Pintado a mano, 3 tonos de color y brillo ajustable" },
+  { type: "image", src: `${MEDIA}/features.webp`, alt: "Luz LED cálida, 3 tonos de color y brillo ajustable" },
   { type: "image", src: `${MEDIA}/luz-apagada-encendida.webp`, alt: "Luz apagada y luz encendida, con control regulador USB" },
   { type: "image", src: `${MEDIA}/abuela.webp`, alt: "Abuela mirando el cuadro iluminado" },
   { type: "image", src: `${MEDIA}/nino.webp`, alt: "Niño junto al cuadro en su mesita de noche" },
@@ -46,7 +47,7 @@ const IN_ACTION_VIDEOS = [
 
 const MATERIALS = [
   ["Marco", "Marco de madera"],
-  ["Lámina", "Ilustración pintada a mano"],
+  ["Lámina", "Ilustración retroiluminada"],
   ["Luz", "LED con 3 tonos de color"],
   ["Control", "Regulador en el cable: encendido, brillo y color"],
   ["Alimentación", "Cable USB"],
@@ -348,7 +349,7 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
           <div className="hidden md:block mt-8">{infoAccordions}</div>
 
           <div className="hidden md:grid mt-6 grid-cols-2 gap-3 text-sm">
-            <p className="rounded-md bg-[#f3ece1] px-4 py-3 text-center">Pintado a mano</p>
+            <p className="rounded-md bg-[#f3ece1] px-4 py-3 text-center">Marco de madera</p>
             <p className="rounded-md bg-[#f3ece1] px-4 py-3 text-center">Luz cálida regulable</p>
           </div>
         </div>
@@ -376,7 +377,7 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
             {product.name}
           </h1>
           <p className="mt-1 text-sm uppercase tracking-[0.15em] text-muted">
-            Pintado a mano · Con luz LED · {SIZE_LABEL}
+            Marco de madera · Con luz LED · {SIZE_LABEL}
           </p>
           <div className="mt-4 flex items-center gap-3">
             <span className="text-lg text-muted line-through">{eur(COMPARE_AT_CENTS)}</span>
@@ -468,9 +469,15 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
             {submitting ? "Redirigiendo al pago..." : `Comprar ahora • ${price(selected)}`}
           </button>
 
-          <p className="mt-4 text-center text-xs text-muted">Envío gratis · Pago seguro con tarjeta o Bizum · IVA incluido</p>
+          <p className="mt-4 text-center text-xs text-muted">Envío gratis · Pago seguro con tarjeta o Bizum · Precio final</p>
           <p className="mt-1 text-center text-xs text-muted">
             Si no llega o llega dañado, te enviamos otro gratis · 14 días de devolución
+          </p>
+          <p className="mt-1 text-center text-[11px] text-muted">
+            Al comprar aceptas las{" "}
+            <Link href="/condiciones" className="underline underline-offset-2 hover:text-foreground">
+              condiciones de venta
+            </Link>
           </p>
 
           <div className="md:hidden mt-8">{infoAccordions}</div>
@@ -522,7 +529,7 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
               <div className="rounded-lg border border-white/15 p-5">
                 <p className="font-medium">Luz apagada</p>
                 <ul className="mt-3 space-y-2 text-sm text-white/75 list-disc pl-4">
-                  <li>Una ilustración pintada a mano, bonita incluso sin luz.</li>
+                  <li>Una ilustración bonita incluso sin luz.</li>
                   <li>Un detalle de fe discreto para cualquier rincón.</li>
                 </ul>
               </div>
