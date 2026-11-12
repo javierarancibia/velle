@@ -54,7 +54,7 @@ export async function getVariantById(id: string): Promise<ProductVariantRow | nu
 function generateOrderNumber(): string {
   const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, "");
   const randomPart = Math.random().toString(36).slice(2, 6).toUpperCase();
-  return `KIN-${datePart}-${randomPart}`;
+  return `VEL-${datePart}-${randomPart}`;
 }
 
 export async function createPendingOrder(input: {
