@@ -38,7 +38,59 @@ XMAS1 cover swapped to `hero.png` (no Gemini mark, pushed in 85ab844): new creat
 - **Website:** `hero.png` live on velle.es (commit 85ab844).
 - **Repo:** marketing docs and `scripts/meta/report.mjs` committed.
 
+## 2026-11-12 (night) — Navidad test rebuilt, everything PAUSED, waiting for the user's OK
+
+Structure from Felipe Vergara's skills (excel-de-estrategia: Presentación + Evaluación, exclusions; generador-de-nombres: `Anunciante / Ciclo / …` naming). Our per-concept ABO test is kept inside Presentación. Copy is from the creative plan; every ad links to `velle.es/products/cuadro-jesus` with `utm_source=meta&utm_medium=paid_social`, `utm_campaign=nav26-test` (prospecting) or `nav26-rt` (retargeting), and `utm_content` = the ad code. CTA "Comprar" (SHOP_NOW). DSA beneficiary "Velle", payor "Javier Arancibia Digital Services" on the new ad sets.
+
+**Presentación** — campaign `120248693572350534` renamed `Velle / Presentación / Ventas / ABO / Navidad 2026`. 5 ad sets × 5 €/day = 25 €/day. Spain, age 25+ (25–65 suggested), Advantage+ audience and placements, Purchase optimisation. Excludes VELLE_COMPRADORES_180D, VELLE_WEB_90D, VELLE_FB_ENG_90D.
+
+| Ad set | ID | Ads (ID) |
+| --- | --- | --- |
+| … / Control (was ES_TEST_V0_REGALO) | 120248693573920534 | V0 `120248693578730534` (original Oct creative) |
+| … / Abuelos | 120248968796700534 | 1A `120248968805350534`, 1B `120248968811100534`, 2A `120248968811720534`, 2B `120248968812580534` |
+| … / Montaje | 120248968797430534 | 3A `120248968813930534`, 3B `120248968814270534`, 3C `120248968814900534` |
+| … / Reseñas | 120248968798360534 | 5A `120248968815170534`, 5B `120248968815870534` |
+| … / Niño | 120248968799410534 | 6A `120248968817200534`, 6B `120248968817810534`, 6C `120248968818210534` |
+
+New ad sets are scheduled to start 13 Nov 07:00 Madrid. Control's start date (2 Nov) is in the past and can't be edited, so it starts as soon as it's switched on.
+
+**Evaluación** — campaign `120248693958950534` renamed `Velle / Evaluación / Ventas / ABO / Navidad 2026`. Ad set `120248693960030534` renamed `Velle / Evaluación / Retargeting 30d`, 5 €/day: VELLE_WEB_30D + VELLE_CHECKOUT_14D + VELLE_FB_ENG_30D, excludes VELLE_COMPRADORES_30D. Ads: V6A `120248968818950534`, I1 `120248968820560534`, I5 `120248968820800534`, I6 `120248968821070534` (images use the 4:5 version; the connector can't do per-placement images together with UTMs yet).
+
+**Archived:** ad sets V0_PRESENCIA, V0_PACK, XMAS1_NAVIDAD (with XMAS1_v2), V5_ASMR_DEMO and the ad ES_RT_V0_PACK.
+
+**New audiences:** VELLE_WEB_90D `120248968774730534`, VELLE_COMPRADORES_180D `120248968775310534`, VELLE_FB_ENG_90D `120248968774640534`, VELLE_FB_ENG_30D `120248968776520534`. Instagram engager audiences failed (the connector has no audience permission on the IG account); create them in Ads Manager if wanted.
+
+**Media:** 13 videos and 6 images uploaded to the ad account (titles start with "NAV26"). The connector's direct upload isn't enabled yet, so files were hosted briefly in Supabase storage `uploads/tmp-ads/` and pulled by URL; the large files are deleted. The 13 cover frames (`thumb-*.jpg`) are still there; delete them once the ads are approved.
+
+**Total when live:** 30 €/day (25 prospecting + 5 retargeting).
+
+## 2026-11-13 — LIVE: both campaigns activated (user's OK: "go all in with the campaign setup and activation")
+
+**Retargeting images rebuilt** from the user's new sources (`Imagenes Retargeting/src/build.mjs`; previous versions in `old/`), 4:5 + 9:16 each. Uploaded via temporary Supabase hosting (user approved; files deleted right after). The connector's direct upload and `url_tags` are still "rolling out", so UTMs are in the link itself (`?utm_source=meta&utm_medium=paid_social&utm_campaign=nav26-rt&utm_content=<code>`). Each creative uses placement customization: the 4:5 image everywhere and the 9:16 image in FB/IG Stories + Reels and Messenger Stories.
+
+| Ad (Evaluación / Retargeting 30d) | Ad ID | Creative |
+| --- | --- | --- |
+| I1 v2 Paga 2 recibe 3 | 120248977561150534 | 1119823277433608 |
+| I5A Valeria (Abuela) | 120248977562340534 | 1644590477161020 |
+| I5B Fernanda (Abuelo) | 120248977562950534 | 1161465509682834 |
+| I5C Carolina (Niño) | 120248977563390534 | 1584058870195709 |
+| I5D Teresa M., Zamora (Hermana) | 120248977563980534 | 2292719351517466 |
+| I6 v2 Apagado/Encendido | 120248977564160534 | 2113904745927358 |
+
+Copy unchanged from the old ads (I5x share "Lo que dicen nuestros clientes…"). Old I1/I5/I6 ads archived.
+
+**Activated (13 Nov, afternoon):** both campaigns, all 6 ad sets, all 20 ads. Read back: campaigns and the 14 video ads ACTIVE; the 6 new image ads PENDING_REVIEW. Spend: 30 €/day (25 prospecting + 5 retargeting).
+
 ## To-dos
+
+### Fri 13 Nov
+- [x] Activate Presentación and Evaluación (done 13 Nov; user chose to launch retargeting now too).
+- [ ] Check the 6 new image ads pass review; fix any rejection.
+- [ ] Check every ad passed review; fix any rejection.
+- [ ] Product page: remove the duplicate José María review; add Clara Z. ("Mi hija Josefina ama su Luz de Cristo"), Fernanda M. ("Mi Yayo lloró cuando vio a Jesús al iluminarse"), Carolina S. ("Es nuestro pequeño ritual con mi hijo rezar antes de dormir") and Luz R. ("El mejor regalo que me han dado para Navidad", from V6A), with stills from the Ad 5 / V6A videos as photos.
+- [ ] Payment-logo row under the buy button is built locally (not pushed); push it once Bizum is approved in Stripe.
+- [ ] Bizum live test purchase once Stripe approves it.
+- [ ] Delete `uploads/tmp-ads/thumb-*.jpg` from Supabase after review (`node --env-file=.env.local <scratchpad>/upthumbs.mjs <dir> --delete`, or from the Supabase dashboard).
 
 ### Launch day: Thu 12 Nov 2026 (goal: campaign live by end of day)
 
@@ -51,7 +103,7 @@ Videos are in `Apps/Cuadro de Jesus/Ads/Campaña Noviembre 2026/<Ad folder>/`. E
 | 1A, 1B Abuela | ✅ Ready (1080p, offer moved up, lowercase fixed) |
 | 2A, 2B Abuelo | ✅ Ready (stray "·" gone from 2A) |
 | 3A, 3B, 3C Para quién es | ✅ Ready ("Paga 2 y lleva 3" on all three) |
-| 5A, 5B Reseñas | ✅ Ready. User to confirm the reviewer name "Clara Z., Madrid" (the owner's list has "Catalina Z. (Madrid)") |
+| 5A, 5B Reseñas | ✅ Ready. "Clara Z., Madrid" is correct (confirmed 12 Nov) |
 | 6A, 6B, 6C Antes de dormir | ✅ Ready. Intentional format test (user, 12 Nov): 6A has no offer end card; black-box captions with the offer near the top vs white + border below centre on the other ads. Compare caption format/position when reading results |
 | V6A Unboxing (retargeting) | ✅ Ready (offer "Paga 2 Lleva 3" near the top, fine for retargeting) |
 | V0 Lampara Jesus Ad 2 | ✅ Runs as is (already 1080p) |
