@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { COMPARE_AT_CENTS, HAPPY_CUSTOMERS, MEDIA, REVIEWS, SIZE_LABEL } from "@/lib/cuadroJesus";
+import { COMPARE_AT_CENTS, HAPPY_CUSTOMERS, MEDIA, REVIEWS, SIZE_LABEL, type Review } from "@/lib/cuadroJesus";
 import { formatPrice } from "@/lib/format";
 import { trackMetaPixelEvent } from "@/lib/metaPixel";
 import type { ProductRow, ProductVariantRow } from "@/lib/types";
@@ -132,13 +132,25 @@ function LazyVideo({ src, poster, className }: { src: string; poster: string; cl
   );
 }
 
-function ReviewCard({ review }: { review: (typeof REVIEWS)[number] }) {
+function ReviewCard({ review }: { review: Review }) {
   const [expanded, setExpanded] = useState(false);
   const isLong = review.text.length > 180;
   return (
-    <article className="snap-start flex-shrink-0 w-[82%] sm:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-3.75rem)/4)] bg-white rounded-xl overflow-hidden flex flex-col">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={review.photo} alt="" loading="lazy" className="w-full aspect-[4/3] object-cover" />
+    <article className="snap-start flex-shrink-0 w-[72%] sm:w-[calc((100%-2.5rem)/3)] lg:w-[calc((100%-3.75rem)/4)] bg-white rounded-xl overflow-hidden flex flex-col">
+      {/* Same 9:16 box for every card so the row lines up: customer clips fill
+          it whole; a square photo sits centred over a blurred copy of itself. */}
+      <div className="relative w-full aspect-[9/16] overflow-hidden bg-[#1a1410]">
+        {review.video ? (
+          <LazyVideo src={review.video} poster={review.photo} className="absolute inset-0 w-full h-full object-cover" />
+        ) : (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={review.photo} alt="" aria-hidden loading="lazy" className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-70" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={review.photo} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-contain" />
+          </>
+        )}
+      </div>
       <div className="p-5 flex flex-col flex-1">
         <div className="flex items-center justify-between gap-2">
           <p className="font-medium">{review.name}</p>
@@ -196,8 +208,8 @@ function ReviewsCarousel() {
     <div className="relative mt-10">
       {arrow(-1)}
       <div ref={trackRef} className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 [scrollbar-width:none]">
-        {REVIEWS.map((r, i) => (
-          <ReviewCard key={i} review={r} />
+        {REVIEWS.map((r) => (
+          <ReviewCard key={r.name} review={r} />
         ))}
       </div>
       {arrow(1)}
