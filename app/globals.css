@@ -18,6 +18,16 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Tailwind v4 resets buttons to the default arrow cursor; show the hand on
+   everything clickable. */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+summary,
+label[for],
+select {
+  cursor: pointer;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

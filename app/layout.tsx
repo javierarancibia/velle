@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import MetaPixel from "@/components/MetaPixel";
 import CookieBanner, { CookieSettingsLink } from "@/components/CookieBanner";
@@ -75,6 +76,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </div>
         </footer>
         <CookieBanner />
+        {/* Vercel Web Analytics: cookieless visit counts, so it runs without
+            cookie consent (unlike the Meta Pixel). */}
+        <Analytics />
       </body>
     </html>
   );

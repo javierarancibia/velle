@@ -132,6 +132,19 @@ function LazyVideo({ src, poster, className }: { src: string; poster: string; cl
   );
 }
 
+// Logos in public/payments. Keep in line with the methods switched on in
+// Stripe (Configuración > Pagos > Métodos de pago). Bizum's logo is public
+// domain (Wikimedia Commons); the others come from Simple Icons.
+// TODO(javier): add { file: "bizum", name: "Bizum", h: "h-4" } after Visa
+// and Mastercard once Stripe approves Bizum in live mode.
+const PAYMENT_BADGES = [
+  { file: "visa", name: "Visa", h: "h-3.5" },
+  { file: "mastercard", name: "Mastercard", h: "h-5" },
+  { file: "applepay", name: "Apple Pay", h: "h-5" },
+  { file: "googlepay", name: "Google Pay", h: "h-5" },
+  { file: "klarna", name: "Klarna", h: "h-3.5" },
+];
+
 function ReviewCard({ review }: { review: Review }) {
   const [expanded, setExpanded] = useState(false);
   const isLong = review.text.length > 180;
@@ -481,7 +494,19 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
             {submitting ? "Redirigiendo al pago..." : `Comprar ahora • ${price(selected)}`}
           </button>
 
-          <p className="mt-4 text-center text-xs text-muted">Envío gratis · Pago seguro con tarjeta o Bizum · Precio final</p>
+          <ul aria-label="Métodos de pago" className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
+            {PAYMENT_BADGES.map((b) => (
+              <li
+                key={b.file}
+                className="flex h-7 w-12 items-center justify-center rounded-md border border-border bg-white px-1.5"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/payments/${b.file}.svg`} alt={b.name} className={`${b.h} w-full object-contain`} />
+              </li>
+            ))}
+          </ul>
+
+          <p className="mt-3 text-center text-xs text-muted">Envío gratis · Pago seguro con tarjeta o Bizum · Precio final</p>
           <p className="mt-1 text-center text-xs text-muted">
             Si no llega o llega dañado, te enviamos otro gratis · 14 días de devolución
           </p>
