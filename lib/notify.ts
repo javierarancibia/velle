@@ -42,6 +42,38 @@ export async function notifyOperatorOfPaidOrder(order: OrderRow): Promise<void> 
   if (error) throw new Error(`Resend: ${error.message}`);
 }
 
+// For /admin/test-email: the real customer template, filled with a sample
+// order, so deliverability can be checked per inbox (Hotmail, Gmail…).
+export async function sendTestOrderConfirmation(to: string): Promise<string> {
+  const resend = resendClient();
+  if (!resend) throw new Error("RESEND_API_KEY no está configurada");
+
+  const sample = {
+    order_number: "VEL-PRUEBA",
+    customer_name: "Prueba",
+    customer_email: to,
+    shipping_address: { name: "Nombre de prueba", line1: "Calle Mayor 1", city: "Madrid", postal_code: "28013", country: "ES" },
+    amount_total_cents: 4490,
+    currency: "eur",
+    paid_at: new Date().toISOString(),
+  } as Partial<OrderRow> as OrderRow; // the template only reads these fields
+  const { subject, html, text } = buildOrderConfirmationEmail(sample, {
+    productName: "Cuadro 'La Luz de Jesús'",
+    variantLabel: "1 cuadro",
+  });
+
+  const { data, error } = await resend.emails.send({
+    from: FROM,
+    to,
+    replyTo: REPLY_TO,
+    subject: `[PRUEBA] ${subject}`,
+    html,
+    text,
+  });
+  if (error) throw new Error(error.message);
+  return data?.id ?? "";
+}
+
 // Sent once per order: the idempotency key stops a duplicate if Stripe
 // retries the webhook within 24 h.
 export async function sendOrderConfirmationToCustomer(order: OrderRow): Promise<void> {
