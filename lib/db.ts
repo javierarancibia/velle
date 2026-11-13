@@ -26,6 +26,12 @@ export async function getProductBySlug(slug: string): Promise<ProductRow | null>
   return data;
 }
 
+export async function getProductById(id: string): Promise<ProductRow | null> {
+  const { data, error } = await supabase.from("products").select("*").eq("id", id).maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
 export async function getActiveVariantsByProduct(
   productId: string
 ): Promise<ProductVariantRow[]> {

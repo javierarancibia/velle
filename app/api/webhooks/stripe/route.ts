@@ -8,7 +8,7 @@ import {
   recordWebhookEvent,
   setOrderPrintFileUrl,
 } from "@/lib/db";
-import { notifyOperatorOfPaidOrder } from "@/lib/notify";
+import { notifyOperatorOfPaidOrder, sendOrderConfirmationToCustomer } from "@/lib/notify";
 import { renderStarMapPng } from "@/lib/starMap/render";
 import { printDimensionsForVariantLabel } from "@/lib/starMap/printSizes";
 import { stripe } from "@/lib/stripe";
@@ -107,9 +107,14 @@ export async function POST(req: Request) {
 
         const updated = await getOrderByStripeSessionId(session.id);
         if (updated) {
-          await notifyOperatorOfPaidOrder(updated).catch((err) =>
-            console.error("Failed to send operator notification email", err)
-          );
+          await Promise.all([
+            sendOrderConfirmationToCustomer(updated).catch((err) =>
+              console.error("Failed to send customer confirmation email", updated.order_number, err)
+            ),
+            notifyOperatorOfPaidOrder(updated).catch((err) =>
+              console.error("Failed to send operator notification email", err)
+            ),
+          ]);
         }
       }
     }
