@@ -252,6 +252,18 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [submitting, setSubmitting] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Phone-only sticky buy bar, shown while the main "Comprar ahora" button is
+  // off screen (so the two never show at once).
+  const buyButtonRef = useRef<HTMLButtonElement>(null);
+  const [mainBuyVisible, setMainBuyVisible] = useState(true);
+
+  useEffect(() => {
+    const el = buyButtonRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([entry]) => setMainBuyVisible(entry.isIntersecting));
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   useEffect(() => {
     trackMetaPixelEvent("ViewContent", {
@@ -486,6 +498,7 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
           </p>
 
           <button
+            ref={buyButtonRef}
             type="button"
             onClick={() => handleBuy(selected)}
             disabled={submitting !== null}
@@ -647,6 +660,35 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
           </div>
         </div>
       </section>
+
+      {/* ─── Sticky buy bar (phones) ─── */}
+      {/* Room at the bottom so the bar never hides the last content. */}
+      <div aria-hidden className="h-20 md:hidden" />
+      <div
+        className={`fixed inset-x-0 z-40 border-t border-border bg-background/95 backdrop-blur shadow-[0_-4px_20px_rgba(0,0,0,0.08)] transition-transform duration-200 md:hidden ${
+          mainBuyVisible ? "translate-y-[calc(100%_+_var(--cookie-bar-h,0px))]" : "translate-y-0"
+        }`}
+        style={{ bottom: "var(--cookie-bar-h, 0px)" }}
+        aria-hidden={mainBuyVisible}
+      >
+        <div className="flex items-center gap-3 px-4 py-2.5">
+          <a href="#comprar" className="min-w-0 flex-1" tabIndex={mainBuyVisible ? -1 : 0}>
+            <span className="block truncate text-sm font-medium text-foreground">
+              {selected.label} · {price(selected)}
+            </span>
+            <span className="block text-xs text-muted underline underline-offset-2">Cambiar pack</span>
+          </a>
+          <button
+            type="button"
+            onClick={() => handleBuy(selected)}
+            disabled={submitting !== null}
+            tabIndex={mainBuyVisible ? -1 : 0}
+            className="shrink-0 rounded-full bg-accent px-6 py-3 text-sm font-medium uppercase tracking-wide text-white disabled:opacity-50"
+          >
+            {submitting ? "Un momento…" : "Comprar ahora"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

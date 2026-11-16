@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { onConsentOpen, openConsentBanner, readConsent, writeConsent } from "@/lib/consent";
 
 // Cookie banner per the AEPD cookie guide (2023): shown before any optional
@@ -12,6 +12,7 @@ export default function CookieBanner() {
   const [open, setOpen] = useState(false);
   const [configuring, setConfiguring] = useState(false);
   const [ads, setAds] = useState(false);
+  const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Cookies are only readable after mount, so the first visit shows the
@@ -25,6 +26,25 @@ export default function CookieBanner() {
     });
   }, []);
 
+  // Publish the bar's height as --cookie-bar-h so bottom-fixed elements (the
+  // product page's sticky buy bar) sit above it instead of under it.
+  useEffect(() => {
+    const root = document.documentElement;
+    const el = barRef.current;
+    if (!open || !el) {
+      root.style.setProperty("--cookie-bar-h", "0px");
+      return;
+    }
+    const update = () => root.style.setProperty("--cookie-bar-h", `${el.offsetHeight}px`);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      root.style.setProperty("--cookie-bar-h", "0px");
+    };
+  }, [open]);
+
   if (!open) return null;
 
   const choose = (granted: boolean) => {
@@ -33,28 +53,21 @@ export default function CookieBanner() {
     setConfiguring(false);
   };
 
-  const btn =
-    "flex-1 sm:flex-none rounded-full px-5 py-2.5 text-sm font-semibold transition-colors";
+  const btn = "flex-1 sm:flex-none rounded-full px-5 py-2 text-sm font-semibold transition-colors";
 
+  // A slim bar, not a card: on a phone it must leave the product, price and
+  // "Comprar" visible. Rechazar and Aceptar keep the same weight.
   return (
     <div
+      ref={barRef}
       role="dialog"
       aria-live="polite"
       aria-label="Preferencias de cookies"
-      className="fixed inset-x-0 bottom-0 z-50 p-3 sm:p-4"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background shadow-[0_-4px_20px_rgba(0,0,0,0.08)]"
     >
-      <div className="mx-auto max-w-3xl rounded-2xl border border-border bg-background shadow-[0_8px_40px_rgba(0,0,0,0.18)] p-5 sm:p-6">
-        <p className="text-sm font-semibold text-foreground">Tu privacidad</p>
-        <p className="mt-1.5 text-sm leading-relaxed text-muted">
-          Usamos cookies necesarias para que la tienda funcione y, solo si las aceptas, cookies de
-          Meta para medir qué anuncios funcionan.{" "}
-          <Link href="/cookies" className="underline underline-offset-2 hover:text-foreground">
-            Política de cookies
-          </Link>
-        </p>
-
+      <div className="mx-auto max-w-5xl px-4 py-2.5 sm:py-3">
         {configuring && (
-          <div className="mt-4 space-y-3 border-t border-border pt-4">
+          <div className="mb-3 space-y-3 border-b border-border pb-3">
             <label className="flex items-start justify-between gap-4">
               <span>
                 <span className="block text-sm font-medium text-foreground">Necesarias</span>
@@ -81,38 +94,53 @@ export default function CookieBanner() {
           </div>
         )}
 
-        <div className="mt-4 flex flex-wrap gap-2 sm:justify-end">
-          {configuring ? (
-            <button
-              type="button"
-              onClick={() => choose(ads)}
-              className={`${btn} w-full sm:w-auto order-last sm:order-first border border-foreground text-foreground hover:bg-foreground hover:text-background`}
-            >
-              Guardar preferencias
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setConfiguring(true)}
-              className={`${btn} w-full sm:w-auto order-last sm:order-first text-muted underline underline-offset-2 hover:text-foreground px-2`}
-            >
-              Configurar
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => choose(false)}
-            className={`${btn} bg-[#1f2452] text-white hover:bg-[#2c3270]`}
-          >
-            Rechazar
-          </button>
-          <button
-            type="button"
-            onClick={() => choose(true)}
-            className={`${btn} bg-[#1f2452] text-white hover:bg-[#2c3270]`}
-          >
-            Aceptar
-          </button>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+          <p className="flex-1 text-xs leading-snug text-muted">
+            Usamos cookies necesarias y, solo si las aceptas, de Meta para medir nuestros anuncios.{" "}
+            <Link href="/cookies" className="underline underline-offset-2 hover:text-foreground">
+              Más info
+            </Link>
+            {configuring ? null : (
+              <>
+                {" · "}
+                <button
+                  type="button"
+                  onClick={() => setConfiguring(true)}
+                  className="underline underline-offset-2 hover:text-foreground"
+                >
+                  Configurar
+                </button>
+              </>
+            )}
+          </p>
+          <div className="flex gap-2">
+            {configuring ? (
+              <button
+                type="button"
+                onClick={() => choose(ads)}
+                className={`${btn} border border-foreground text-foreground hover:bg-foreground hover:text-background`}
+              >
+                Guardar
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => choose(false)}
+                  className={`${btn} bg-[#1f2452] text-white hover:bg-[#2c3270]`}
+                >
+                  Rechazar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => choose(true)}
+                  className={`${btn} bg-[#1f2452] text-white hover:bg-[#2c3270]`}
+                >
+                  Aceptar
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

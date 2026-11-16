@@ -81,11 +81,29 @@ Copy unchanged from the old ads (I5x share "Lo que dicen nuestros clientes…").
 
 **Activated (13 Nov, afternoon):** both campaigns, all 6 ad sets, all 20 ads. Read back: campaigns and the 14 video ads ACTIVE; the 6 new image ads PENDING_REVIEW. Spend: 30 €/day (25 prospecting + 5 retargeting).
 
+## 2026-11-16 — First read (day 3), 3 Q's: 🔴
+
+Full report: [analisis-3qs-2026-11-16.html](analisis-3qs-2026-11-16.html). 13–16 Nov: Presentación 88,92 € spent, 139 outbound clicks (CTR 1,59 %), 1 purchase credited by Meta (5A, 44,90 €) → ROAS 0,50 vs objective 2,6. Evaluación 0 € (all 6 ads approved; audience too small: VELLE_WEB_30D = 20 people because the pixel only loads after cookie consent).
+- Order database: every paid order since launch is from 13 Nov. **VEL-20261113-4DY3 is the only real sale** (confirmed by the user 16 Nov; credited to 5A Reseñas); VEL-20261113-FUYM was a test. **0 checkouts started 14–16 Nov**.
+- Same day: cookie banner slimmed to a bottom bar and a phone-only sticky buy bar added to the product page. Pixel agrees (InitiateCheckout 8 / Purchase 4 on 13 Nov only).
+- Product page on mobile: the cookie banner covers about a third of the screen until answered. Rest of the page is fine.
+- Control ad V0 text still says "pintado a mano".
+- Nothing paused (under 7 days, no ad set near 36 €). Proposed, awaiting the user: slimmer cookie banner, warm audiences for retargeting (video viewers 50 %, IG engagers, WEB_90D), fix V0 text, no budget increase on 20 Nov until checkouts appear, day-7 COD decision.
+
 ## To-dos
+
+### Next session (start here)
+The Meta Ads connector went down mid-afternoon 13 Nov (CONNECT_TIMEOUT; Claude Docs also erroring). Campaigns keep running. If it still fails, the user should reconnect it in claude.ai → Settings → Connectors.
+- [ ] Read the live body + headline of all 20 ads and confirm each matches its video.
+- [ ] **Niño ads 6A/6B/6C:** they quoted Leonor's "Con mi hija…" over the boy video. The user edited the 3 ads by hand in Ads Manager (13 Nov) to credit "Carolina S., Sevilla ⭐⭐⭐⭐⭐". Unconfirmed: whether the quote is now Carolina's own ("Es nuestro pequeño ritual con mi hijo: rezar antes de dormir") or still Leonor's words with Carolina's name. The user said to leave it for now; check the live text and raise it only if it still says "hija". The edit also changed the creative IDs, so re-read them.
+- [ ] Creative plan (Claude Doc + `navidad-2026-creative-plan.md` line ~234, V11 primary text) still has the Leonor quote. Sync it to whatever the live 6A/6B/6C text is.
+- [ ] Check the 6 new image ads passed review; fix any rejection.
+- [ ] Then delete `uploads/tmp-ads/thumb-*.jpg` (13 cover frames) from Supabase.
+- [ ] First performance read around 16 Nov (day 3): per-ad cost per sale, add to cart → checkout → purchase.
 
 ### Fri 13 Nov
 - [x] Activate Presentación and Evaluación (done 13 Nov; user chose to launch retargeting now too).
-- [ ] Check the 6 new image ads pass review; fix any rejection.
+- [x] Website: customer video reviews, payment logos (no Bizum until approved), Vercel Analytics, pointer cursor. All pushed and live (5e9ea83, cc5eb85).
 - [ ] Check every ad passed review; fix any rejection.
 - [ ] Product page: remove the duplicate José María review; add Clara Z. ("Mi hija Josefina ama su Luz de Cristo"), Fernanda M. ("Mi Yayo lloró cuando vio a Jesús al iluminarse"), Carolina S. ("Es nuestro pequeño ritual con mi hijo rezar antes de dormir") and Luz R. ("El mejor regalo que me han dado para Navidad", from V6A), with stills from the Ad 5 / V6A videos as photos.
 - [ ] Payment-logo row under the buy button is built locally (not pushed); push it once Bizum is approved in Stripe.
@@ -139,7 +157,7 @@ Optional, user's call: thicker border or soft shadow where text sits on the lit 
 **Still open from before (needed before activating)**
 - [ ] Confirm "Velle" as DSA beneficiary and payor, or the legal company name.
 - [ ] Bizum in Stripe **live** mode, live webhook endpoint + secret, and one real test purchase that fires the Meta Purchase event (see Checkout below).
-- [ ] "Publicidad" check on the Instagram post: pause any active boost once the user confirms.
+- [x] "Publicidad" check on the Instagram post: closed 13 Nov. The user has never boosted a post on this account, and no ad in the readable accounts delivers it; nothing to pause.
 - [ ] Push commit `9bf6970` (docs and report script only) with the next push to `main`.
 
 **After launch:** Black Friday phase starts 20 Nov; V9 (cut from the phase 1 winner) and image I4 are due 18 Nov.
