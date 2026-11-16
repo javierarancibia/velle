@@ -58,8 +58,8 @@ export async function getVariantById(id: string): Promise<ProductVariantRow | nu
 
 // ─── Orders ──────────────────────────────────────────────
 
-function generateOrderNumber(): string {
-  const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+function generateOrderNumber(date: Date = new Date()): string {
+  const datePart = date.toISOString().slice(0, 10).replace(/-/g, "");
   const randomPart = Math.random().toString(36).slice(2, 6).toUpperCase();
   return `VEL-${datePart}-${randomPart}`;
 }
@@ -85,6 +85,53 @@ export async function createPendingOrder(input: {
       .single();
     if (!error) return data;
     if (error.code !== "23505") throw error; // not a unique-violation, don't retry
+  }
+  throw new Error("Failed to allocate a unique order number after 3 attempts");
+}
+
+// A past customer added by hand in /admin/clients/new (bought outside the
+// website checkout): stored as an already-paid order with no Stripe session,
+// so the customer emails can be sent to them like any other order.
+export async function createManualPaidOrder(input: {
+  productId: string;
+  variantId: string;
+  personalization: Personalization;
+  customerName: string;
+  customerEmail: string;
+  shippingAddress: Record<string, unknown> | null;
+  amountTotalCents: number;
+  paidAt: Date;
+}): Promise<OrderRow> {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const { data, error } = await supabase
+      .from("orders")
+      .insert({
+        order_number: generateOrderNumber(input.paidAt),
+        product_id: input.productId,
+        variant_id: input.variantId,
+        personalization: input.personalization,
+        status: "paid",
+        customer_name: input.customerName,
+        customer_email: input.customerEmail,
+        shipping_address: input.shippingAddress,
+        amount_total_cents: input.amountTotalCents,
+        currency: "eur",
+        paid_at: input.paidAt.toISOString(),
+        notes: "Cliente añadido a mano en el admin",
+      })
+      .select("*")
+      .single();
+    if (!error) {
+      const { error: eventError } = await supabase.from("order_status_events").insert({
+        order_id: data.id,
+        from_status: null,
+        to_status: "paid",
+        note: "Added by hand in /admin/clients/new",
+      });
+      if (eventError) throw eventError;
+      return data;
+    }
+    if (error.code !== "23505") throw error;
   }
   throw new Error("Failed to allocate a unique order number after 3 attempts");
 }

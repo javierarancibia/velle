@@ -34,8 +34,12 @@ function matches(order: OrderRow, q: string): boolean {
     .some((field) => field!.toLowerCase().includes(q));
 }
 
-export default async function AdminClientsPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
-  const { q: rawQuery } = await searchParams;
+export default async function AdminClientsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; added?: string; sent?: string; send_error?: string }>;
+}) {
+  const { q: rawQuery, added, sent, send_error: sendError } = await searchParams;
   const q = rawQuery?.trim().toLowerCase() ?? "";
   const all = await listPaidOrders();
   const orders = q ? all.filter((o) => matches(o, q)) : all;
@@ -71,8 +75,23 @@ export default async function AdminClientsPage({ searchParams }: { searchParams:
           <button type="submit" className="rounded-md border border-border px-3 py-1.5 text-sm">
             Buscar
           </button>
+          <Link href="/admin/clients/new" className="rounded-md bg-accent px-3 py-1.5 text-sm text-white">
+            + Añadir cliente
+          </Link>
         </form>
       </div>
+
+      {added ? (
+        <p
+          className={`mt-6 rounded-md border px-4 py-3 text-sm ${
+            sendError ? "border-amber-300 bg-amber-50 text-amber-900" : "border-green-300 bg-green-50 text-green-900"
+          }`}
+        >
+          Cliente añadido con el pedido <strong>{added}</strong>.
+          {sent ? " Confirmación de compra enviada." : null}
+          {sendError ? ` No se pudo enviar la confirmación: ${sendError}` : null}
+        </p>
+      ) : null}
 
       <div className="mt-8 overflow-x-auto">
         <table className="w-full text-sm">
@@ -105,6 +124,9 @@ export default async function AdminClientsPage({ searchParams }: { searchParams:
                     )}
                     {phone ? <p className="text-muted">{phone}</p> : null}
                     {count > 1 ? <p className="mt-1 text-xs text-accent">{count} pedidos</p> : null}
+                    {!o.stripe_checkout_session_id ? (
+                      <p className="mt-1 text-xs text-muted">Añadido a mano</p>
+                    ) : null}
                   </td>
                   <td className="py-3 pr-4 text-muted max-w-56">{place ?? "—"}</td>
                   <td className="py-3 pr-4 whitespace-nowrap">
