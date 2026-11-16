@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import type {
+  CustomerEmailKind,
   OrderRow,
   OrderStatus,
   Personalization,
@@ -196,6 +197,28 @@ export async function listOrders(status?: OrderStatus): Promise<OrderRow[]> {
   const { data, error } = await query;
   if (error) throw error;
   return data ?? [];
+}
+
+// Every order that was ever paid, newest first: the customer list in
+// /admin/clients.
+export async function listPaidOrders(): Promise<OrderRow[]> {
+  const { data, error } = await supabase
+    .from("orders")
+    .select("*")
+    .not("paid_at", "is", null)
+    .order("paid_at", { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function markCustomerEmailSent(orderId: string, kind: CustomerEmailKind): Promise<string> {
+  const sentAt = new Date().toISOString();
+  const { error } = await supabase
+    .from("orders")
+    .update({ [`${kind}_email_sent_at`]: sentAt })
+    .eq("id", orderId);
+  if (error) throw error;
+  return sentAt;
 }
 
 // ─── Stripe webhook idempotency ──────────────────────────────────────────

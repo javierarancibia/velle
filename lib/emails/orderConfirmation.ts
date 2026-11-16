@@ -1,52 +1,8 @@
 import type { OrderRow } from "../types";
+import { addressLines, emailLayout, esc, euros, firstName, H1, H2, LABEL, P, signOff, SITE, spanishDate, step } from "./shared";
 
 // Customer order confirmation for the cuadro. Same design as the manual
 // template in docs/emails/confirmacion-pedido.html: keep both in step.
-// Email clients ignore <style> blocks and CSS variables, so every style is
-// inline and the layout is tables.
-
-const SITE = "https://velle.es";
-
-const COUNTRY_NAMES: Record<string, string> = { ES: "España", PT: "Portugal" };
-
-function esc(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-function euros(cents: number | null, currency: string | null): string {
-  if (cents === null) return "";
-  return new Intl.NumberFormat("es-ES", { style: "currency", currency: (currency ?? "eur").toUpperCase() }).format(
-    cents / 100
-  );
-}
-
-function spanishDate(iso: string | null): string {
-  return new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Madrid" }).format(
-    iso ? new Date(iso) : new Date()
-  );
-}
-
-function addressLines(order: OrderRow): string[] {
-  const a = (order.shipping_address ?? {}) as Record<string, string | null | undefined>;
-  const country = a.country ? (COUNTRY_NAMES[a.country] ?? a.country) : null;
-  return [
-    a.name ?? order.customer_name,
-    a.line1,
-    a.line2,
-    [a.postal_code, a.city].filter(Boolean).join(" "),
-    country,
-  ].filter((line): line is string => Boolean(line && line.trim()));
-}
-
-function firstName(order: OrderRow): string | null {
-  const full = order.customer_name ?? (order.shipping_address as { name?: string } | null)?.name ?? null;
-  return full?.trim().split(/\s+/)[0] || null;
-}
 
 export function buildOrderConfirmationEmail(
   order: OrderRow,
@@ -61,26 +17,11 @@ export function buildOrderConfirmationEmail(
 
   const subject = `¡Gracias por tu pedido! Tu pedido ${order.order_number} está confirmado`;
 
-  const p = "margin:0;font-size:15px;line-height:1.6;color:#201d1a;";
-  const label = "margin:0 0 6px;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:#7a746b;";
-  const step = (n: number, text: string) => `
-      <tr>
-        <td valign="top" width="30" style="padding:4px 0;color:#c98b4f;font-weight:bold;">${n}</td>
-        <td style="padding:4px 0;">${text}</td>
-      </tr>`;
-
-  const html = `<!doctype html>
-<html lang="es">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(subject)}</title></head>
-<body style="margin:0;padding:0;background:#faf7f2;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#faf7f2;">
-<tr><td align="center" style="padding:24px 12px;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;background:#ffffff;border:1px solid #e4ddd2;border-radius:12px;font-family:Helvetica,Arial,sans-serif;color:#201d1a;">
-  <tr><td align="center" style="padding:28px 24px 8px;">
-    <a href="${SITE}" style="text-decoration:none;"><img src="${SITE}/logo.png" alt="Velle" width="110" style="display:block;width:110px;height:auto;border:0;"></a>
-  </td></tr>
+  const html = emailLayout(
+    subject,
+    `
   <tr><td style="padding:16px 32px 0;">
-    <h1 style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:normal;line-height:1.3;color:#201d1a;">${esc(greeting)}</h1>
+    <h1 style="${H1}">${esc(greeting)}</h1>
     <p style="margin:14px 0 0;font-size:16px;line-height:1.6;color:#201d1a;">Hemos recibido tu pedido y ya lo estamos preparando con mucho cariño. Aquí tienes el resumen.</p>
   </td></tr>
   <tr><td style="padding:24px 32px 0;">
@@ -110,13 +51,13 @@ export function buildOrderConfirmationEmail(
     address.length
       ? `
   <tr><td style="padding:20px 32px 0;">
-    <p style="${label}">Lo enviamos a</p>
-    <p style="${p}">${address.map(esc).join("<br>")}</p>
+    <p style="${LABEL}">Lo enviamos a</p>
+    <p style="${P}">${address.map(esc).join("<br>")}</p>
   </td></tr>`
       : ""
   }
   <tr><td style="padding:28px 32px 0;">
-    <h2 style="margin:0 0 12px;font-family:Georgia,'Times New Roman',serif;font-size:19px;font-weight:normal;color:#201d1a;">¿Y ahora qué?</h2>
+    <h2 style="${H2}">¿Y ahora qué?</h2>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:15px;line-height:1.55;color:#201d1a;">${step(
       1,
       "Preparamos y embalamos tu cuadro con cuidado."
@@ -127,22 +68,13 @@ export function buildOrderConfirmationEmail(
     </table>
   </td></tr>
   <tr><td style="padding:24px 32px 0;">
-    <p style="${p}"><strong>Compras con tranquilidad:</strong> si tu cuadro llega dañado, mándanos una foto respondiendo a este email y te enviamos otro sin coste. Además tienes 14 días desde la entrega para devolverlo. <a href="${SITE}/devoluciones" style="color:#c98b4f;">Ver garantía y devoluciones</a>.</p>
+    <p style="${P}"><strong>Compras con tranquilidad:</strong> si tu cuadro llega dañado, mándanos una foto respondiendo a este email y te enviamos otro sin coste. Además tienes 14 días desde la entrega para devolverlo. <a href="${SITE}/devoluciones" style="color:#c98b4f;">Ver garantía y devoluciones</a>.</p>
   </td></tr>
   <tr><td style="padding:24px 32px 32px;">
-    <p style="${p}">¿Tienes alguna pregunta o quieres cambiar algo del pedido? Responde a este email y te ayudamos encantados.</p>
-    <p style="margin:20px 0 0;font-size:15px;line-height:1.6;color:#201d1a;">Un abrazo,<br><span style="font-family:Georgia,'Times New Roman',serif;font-size:17px;">El equipo de Velle</span></p>
-  </td></tr>
-</table>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;font-family:Helvetica,Arial,sans-serif;">
-  <tr><td align="center" style="padding:18px 24px;font-size:12px;line-height:1.6;color:#7a746b;">
-    <a href="${SITE}" style="color:#7a746b;">velle.es</a> · <a href="mailto:info@velle.es" style="color:#7a746b;">info@velle.es</a>
-  </td></tr>
-</table>
-</td></tr>
-</table>
-</body>
-</html>`;
+    <p style="${P}">¿Tienes alguna pregunta o quieres cambiar algo del pedido? Responde a este email y te ayudamos encantados.</p>
+    ${signOff()}
+  </td></tr>`
+  );
 
   const text = [
     greeting,

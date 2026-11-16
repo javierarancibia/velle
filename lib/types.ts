@@ -92,4 +92,10 @@ export interface OrderRow {
   paid_at: string | null;
   sent_to_gelato_at: string | null;
   fulfilled_at: string | null;
+  // Customer emails (migration 0004); null until sent.
+  confirmation_email_sent_at: string | null;
+  processing_email_sent_at: string | null;
+  shipped_email_sent_at: string | null;
 }
+
+export type CustomerEmailKind = "confirmation" | "processing" | "shipped";

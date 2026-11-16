@@ -1,7 +1,9 @@
 import { Resend } from "resend";
-import { getProductById, getVariantById } from "./db";
+import { customerEmailBlocker } from "./customerEmails";
+import { getProductById, getVariantById, markCustomerEmailSent } from "./db";
 import { buildOrderConfirmationEmail } from "./emails/orderConfirmation";
-import type { OrderRow } from "./types";
+import { buildOrderShippedEmail, buildOrderProcessingEmail } from "./emails/orderUpdates";
+import type { CustomerEmailKind, OrderRow } from "./types";
 
 // Both senders need velle.es verified in Resend (Domains). Replies go to the
 // Zoho inbox at info@velle.es.
@@ -74,27 +76,55 @@ export async function sendTestOrderConfirmation(to: string): Promise<string> {
   return data?.id ?? "";
 }
 
-// Sent once per order: the idempotency key stops a duplicate if Stripe
-// retries the webhook within 24 h.
-export async function sendOrderConfirmationToCustomer(order: OrderRow): Promise<void> {
-  // Only the cuadro has a customer email so far (Spanish, cuadro photo).
-  if (order.personalization.kind !== "cuadro-jesus") return;
-  if (!order.customer_email) {
-    console.warn("No customer email on order", order.order_number, "— skipping confirmation");
-    return;
-  }
-  const resend = resendClient();
-  if (!resend) return;
-
+async function buildCustomerEmail(order: OrderRow, kind: CustomerEmailKind) {
+  if (kind === "processing") return buildOrderProcessingEmail(order);
+  if (kind === "shipped") return buildOrderShippedEmail(order);
   const [product, variant] = await Promise.all([getProductById(order.product_id), getVariantById(order.variant_id)]);
-  const { subject, html, text } = buildOrderConfirmationEmail(order, {
+  return buildOrderConfirmationEmail(order, {
     productName: product?.name ?? "Cuadro 'La Luz de Jesús'",
     variantLabel: variant?.label ?? "1 cuadro",
   });
+}
 
+// Sends one of the customer emails and records when it went out, which is
+// the check shown in /admin/clients. Throws with a reason the admin can read.
+export async function sendCustomerEmail(
+  order: OrderRow,
+  kind: CustomerEmailKind,
+  options?: { idempotencyKey?: string }
+): Promise<{ sentAt: string | null }> {
+  const blocker = customerEmailBlocker(order);
+  if (blocker) throw new Error(blocker);
+  const resend = resendClient();
+  if (!resend) throw new Error("RESEND_API_KEY no está configurada");
+
+  const { subject, html, text } = await buildCustomerEmail(order, kind);
   const { error } = await resend.emails.send(
-    { from: FROM, to: order.customer_email, replyTo: REPLY_TO, subject, html, text },
-    { idempotencyKey: `order-confirmation/${order.id}` }
+    { from: FROM, to: order.customer_email!, replyTo: REPLY_TO, subject, html, text },
+    options?.idempotencyKey ? { idempotencyKey: options.idempotencyKey } : undefined
   );
   if (error) throw new Error(`Resend: ${error.message}`);
+
+  // The email is out at this point; a failed stamp must not read as a failed
+  // send (it happens if migration 0004 hasn't been run).
+  try {
+    return { sentAt: await markCustomerEmailSent(order.id, kind) };
+  } catch (err) {
+    console.error(`Sent ${kind} email for ${order.order_number} but could not record it`, err);
+    return { sentAt: null };
+  }
+}
+
+// Sent automatically once per order from the Stripe webhook: the idempotency
+// key stops a duplicate if Stripe retries the webhook within 24 h.
+export async function sendOrderConfirmationToCustomer(order: OrderRow): Promise<void> {
+  const blocker = customerEmailBlocker(order);
+  if (blocker) {
+    if (order.personalization.kind === "cuadro-jesus") {
+      console.warn(`Skipping confirmation for ${order.order_number}: ${blocker}`);
+    }
+    return;
+  }
+  if (!resendClient()) return;
+  await sendCustomerEmail(order, "confirmation", { idempotencyKey: `order-confirmation/${order.id}` });
 }

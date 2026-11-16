@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import AdminOrderActions from "@/components/AdminOrderActions";
+import CustomerEmailButton from "@/components/CustomerEmailButton";
+import { CUSTOMER_EMAILS } from "@/lib/customerEmails";
 import { getOrderById } from "@/lib/db";
 import { formatPrice } from "@/lib/format";
 
@@ -63,6 +65,18 @@ export default async function AdminOrderDetailPage({
             />
           </div>
         )}
+      </div>
+
+      <div className="mt-8">
+        <h2 className="font-medium mb-3">Emails al cliente</h2>
+        <div className="grid gap-4 sm:grid-cols-3 text-sm">
+          {CUSTOMER_EMAILS.map((e) => (
+            <div key={e.kind} className="rounded-md border border-border p-3">
+              <p className="mb-2">{e.label}</p>
+              <CustomerEmailButton order={order} kind={e.kind} />
+            </div>
+          ))}
+        </div>
       </div>
 
       <AdminOrderActions order={order} />
