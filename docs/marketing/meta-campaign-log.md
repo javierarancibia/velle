@@ -116,6 +116,17 @@ Full report: [analisis-3qs-2026-11-16.html](analisis-3qs-2026-11-16.html). 13–
 ## To-dos
 
 ### Next session (start here)
+
+**Wed 18 Nov plan (agreed 17 Nov):**
+1. [ ] Morning read: cash-on-delivery orders vs card checkouts since COD went live (17 Nov ~10:45 Madrid). Subtract the test Purchase from 17 Nov in Meta. Check orders in the DB (`cod_pending`) against Meta's Purchase count.
+2. [ ] Retargeting `ES_RT_C_WARM` / Evaluación: spent 0,40 € on 16 Nov and 0 € on 17 Nov after the audience change. Find out why it isn't delivering.
+3. [ ] **New product gallery** (`GALLERY` in `components/CuadroJesusProductClient.tsx`), shipped on one day and logged here for the before/after:
+   - Slide 1: a 3–4 s off → on loop, **made by the user** from our existing videos (real frame, "Salmo"). Claude trims, loops smoothly, compresses to a muted MP4 (~200 KB, `preload` with the lit hero as poster so phones never see a blank box).
+   - Then: features (current 2) → **size** (17,5 × 23,5 cm, in a hand or on a nightstand) → grandma reaction (current 4) → **reviews slide** (+500 familias, ★★★★★, 2 real quotes) → **in the box** (frame, USB cable with dimmer, packaging) → **peace-of-mind slide** (Paga al recibir · Envío gratis 24–72 h · Si llega dañado te enviamos otro · 14 días de devolución) → **packs slide** (Paga 2 y recibe 3 with prices) → boy at bedtime (current 5) → mother and daughter (current 7).
+   - Claude makes the reviews, peace-of-mind and packs slides (same style as the retargeting images, `Imagenes Retargeting/src/build.mjs`).
+   - Remove: catalogue image (current 3), joven (6), pareja (8), salmo (9), and both videos `encendido.mp4` and `oferta.mp4`: **the real frames say "Salmo 73:23" (confirmed by the user 17 Nov); those two videos say "Psalm 73:23"**, so they don't show what customers receive.
+   - Needed from the user: the off → on clip, a size photo, an in-the-box photo, and whether it comes in a gift box.
+   - Also check the "Míralo en casa" videos (`IN_ACTION_VIDEOS`) and the ad videos for "Psalm"; flag any that show it.
 The Meta Ads connector went down mid-afternoon 13 Nov (CONNECT_TIMEOUT; Claude Docs also erroring). Campaigns keep running. If it still fails, the user should reconnect it in claude.ai → Settings → Connectors.
 - [ ] Read the live body + headline of all 20 ads and confirm each matches its video.
 - [ ] **Niño ads 6A/6B/6C:** they quoted Leonor's "Con mi hija…" over the boy video. The user edited the 3 ads by hand in Ads Manager (13 Nov) to credit "Carolina S., Sevilla ⭐⭐⭐⭐⭐". Unconfirmed: whether the quote is now Carolina's own ("Es nuestro pequeño ritual con mi hijo: rezar antes de dormir") or still Leonor's words with Carolina's name. The user said to leave it for now; check the live text and raise it only if it still says "hija". The edit also changed the creative IDs, so re-read them.
