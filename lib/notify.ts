@@ -1,6 +1,8 @@
 import { Resend } from "resend";
 import { customerEmailBlocker } from "./customerEmails";
 import { getProductById, getVariantById, markCustomerEmailSent } from "./db";
+import { buildCodOrderEmail, codConfirmationWhatsAppText, displayPhone, whatsAppLink } from "./emails/codOrder";
+import { addressLines, euros } from "./emails/shared";
 import { buildOrderConfirmationEmail } from "./emails/orderConfirmation";
 import { buildOrderShippedEmail, buildOrderProcessingEmail } from "./emails/orderUpdates";
 import type { CustomerEmailKind, OrderRow } from "./types";
@@ -44,6 +46,47 @@ export async function notifyOperatorOfPaidOrder(order: OrderRow): Promise<void> 
   if (error) throw new Error(`Resend: ${error.message}`);
 }
 
+// New cash-on-delivery order: everything needed to confirm it on WhatsApp
+// and enter it on the warehouse page, plus a one-tap link that opens a chat
+// with the customer with the confirmation message already written.
+export async function notifyOperatorOfCodOrder(order: OrderRow, variantLabel: string): Promise<void> {
+  const resend = resendClient();
+  const to = process.env.OPERATOR_NOTIFY_EMAIL;
+  if (!resend || !to) {
+    console.warn("OPERATOR_NOTIFY_EMAIL not set — skipping operator email");
+    return;
+  }
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const wa = order.customer_phone ? whatsAppLink(order.customer_phone, codConfirmationWhatsAppText(order, variantLabel)) : null;
+  const total = euros(order.amount_total_cents, order.currency);
+
+  const { error } = await resend.emails.send(
+    {
+      from: FROM,
+      to,
+      subject: `🚚 Contrareembolso ${order.order_number}: ${variantLabel}, ${total}`,
+      text: [
+        "Nuevo pedido con pago al recibir. Confírmalo por WhatsApp y pásalo al almacén.",
+        "",
+        wa ? `Escribir al cliente por WhatsApp (mensaje ya escrito):\n${wa}` : "Sin teléfono.",
+        "",
+        `Pedido: ${order.order_number}`,
+        `Pack: ${variantLabel}`,
+        `A cobrar al entregar: ${total}`,
+        `Teléfono: ${displayPhone(order.customer_phone)}`,
+        `Email: ${order.customer_email ?? "—"}`,
+        "",
+        "Dirección:",
+        ...addressLines(order),
+        "",
+        `Ver en el admin: ${siteUrl}/admin/orders/${order.id}`,
+      ].join("\n"),
+    },
+    { idempotencyKey: `operator-cod/${order.id}` }
+  );
+  if (error) throw new Error(`Resend: ${error.message}`);
+}
+
 // For /admin/test-email: the real customer template, filled with a sample
 // order, so deliverability can be checked per inbox (Hotmail, Gmail…).
 export async function sendTestOrderConfirmation(to: string): Promise<string> {
@@ -80,10 +123,11 @@ async function buildCustomerEmail(order: OrderRow, kind: CustomerEmailKind) {
   if (kind === "processing") return buildOrderProcessingEmail(order);
   if (kind === "shipped") return buildOrderShippedEmail(order);
   const [product, variant] = await Promise.all([getProductById(order.product_id), getVariantById(order.variant_id)]);
-  return buildOrderConfirmationEmail(order, {
+  const item = {
     productName: product?.name ?? "Cuadro 'La Luz de Jesús'",
     variantLabel: variant?.label ?? "1 cuadro",
-  });
+  };
+  return order.payment_method === "cod" ? buildCodOrderEmail(order, item) : buildOrderConfirmationEmail(order, item);
 }
 
 // Sends one of the customer emails and records when it went out, which is

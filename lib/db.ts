@@ -89,6 +89,54 @@ export async function createPendingOrder(input: {
   throw new Error("Failed to allocate a unique order number after 3 attempts");
 }
 
+// Cash on delivery: the customer fills our own form instead of Stripe, so
+// the order starts with their details and waits as 'cod_pending' until the
+// courier collects the money.
+export async function createCodOrder(input: {
+  productId: string;
+  variantId: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  shippingAddress: Record<string, unknown>;
+  amountTotalCents: number;
+  currency: string;
+}): Promise<OrderRow> {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const { data, error } = await supabase
+      .from("orders")
+      .insert({
+        order_number: generateOrderNumber(),
+        product_id: input.productId,
+        variant_id: input.variantId,
+        personalization: { kind: "cuadro-jesus" },
+        status: "cod_pending",
+        payment_method: "cod",
+        customer_name: input.customerName,
+        customer_email: input.customerEmail,
+        customer_phone: input.customerPhone,
+        shipping_address: input.shippingAddress,
+        amount_total_cents: input.amountTotalCents,
+        currency: input.currency,
+        notes: "Contrareembolso: confirmar por WhatsApp",
+      })
+      .select("*")
+      .single();
+    if (!error) {
+      const { error: eventError } = await supabase.from("order_status_events").insert({
+        order_id: data.id,
+        from_status: null,
+        to_status: "cod_pending",
+        note: "Cash-on-delivery order from the product page",
+      });
+      if (eventError) throw eventError;
+      return data;
+    }
+    if (error.code !== "23505") throw error;
+  }
+  throw new Error("Failed to allocate a unique order number after 3 attempts");
+}
+
 // A past customer added by hand in /admin/clients/new (bought outside the
 // website checkout): stored as an already-paid order with no Stripe session,
 // so the customer emails can be sent to them like any other order.
@@ -246,14 +294,16 @@ export async function listOrders(status?: OrderStatus): Promise<OrderRow[]> {
   return data ?? [];
 }
 
-// Every order that was ever paid, newest first: the customer list in
-// /admin/clients.
+// Every order that was ever paid, plus every cash-on-delivery order (paid
+// to the courier later), newest first: the customer list in /admin/clients.
 export async function listPaidOrders(): Promise<OrderRow[]> {
   const { data, error } = await supabase
     .from("orders")
     .select("*")
-    .not("paid_at", "is", null)
-    .order("paid_at", { ascending: false });
+    .or("paid_at.not.is.null,payment_method.eq.cod")
+    // Unpaid COD orders (no paid_at) first: they still need a WhatsApp check.
+    .order("paid_at", { ascending: false, nullsFirst: true })
+    .order("created_at", { ascending: false });
   if (error) throw error;
   return data ?? [];
 }

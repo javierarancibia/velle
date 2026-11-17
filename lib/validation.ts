@@ -38,3 +38,29 @@ export const checkoutRequestSchema = z.object({
   variantId: z.string().uuid(),
   personalization: personalizationSchema,
 });
+
+// Spanish phone for cash-on-delivery orders: 9 digits starting 6/7/8/9,
+// with or without +34 / 0034 and spaces, dots or dashes. Returns +34XXXXXXXXX.
+export function normalizeSpanishPhone(raw: string): string | null {
+  const digits = raw.replace(/[\s.\-()]/g, "").replace(/^(\+34|0034)/, "");
+  return /^[6789]\d{8}$/.test(digits) ? `+34${digits}` : null;
+}
+
+// Cash on delivery (cuadro only, Spain only). `website` is a honeypot: real
+// people never see it, so any value means a bot.
+export const codOrderRequestSchema = z.object({
+  variantId: z.string().uuid(),
+  name: z.string().trim().min(3).max(120),
+  phone: z
+    .string()
+    .trim()
+    .refine((v) => normalizeSpanishPhone(v) !== null, "Teléfono no válido"),
+  email: z.string().trim().email().max(200),
+  line1: z.string().trim().min(3).max(200),
+  line2: z.string().trim().max(200).optional(),
+  postalCode: z.string().trim().regex(/^(0[1-9]|[1-4]\d|5[0-2])\d{3}$/, "Código postal no válido"),
+  city: z.string().trim().min(2).max(100),
+  province: z.string().trim().max(100).optional(),
+  website: z.string().max(0).optional(),
+});
+export type CodOrderRequest = z.infer<typeof codOrderRequestSchema>;

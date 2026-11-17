@@ -35,11 +35,15 @@ export default function CondicionesPage() {
       <UL>
         <li>Eliges cuántos cuadros quieres y pulsas el botón de compra.</li>
         <li>
-          Introduces tus datos de envío y pagas en la página segura de Stripe. Antes de pagar puedes revisar y
-          corregir tu pedido.
+          Si pagas con tarjeta o Bizum, introduces tus datos de envío y pagas en la página segura de Stripe. Antes
+          de pagar puedes revisar y corregir tu pedido.
         </li>
         <li>
-          Al confirmar el pago, el contrato queda cerrado y te enviamos por email la confirmación del pedido con
+          Si eliges pagar al recibir, rellenas tus datos de envío en nuestro formulario y te escribimos por
+          WhatsApp para confirmar el pedido antes de enviarlo.
+        </li>
+        <li>
+          Al confirmar el pago (o al confirmar por WhatsApp un pedido con pago al recibir), el contrato queda cerrado y te enviamos por email la confirmación del pedido con
           su número y su importe.
         </li>
       </UL>
@@ -49,6 +53,10 @@ export default function CondicionesPage() {
       <P>
         Puedes pagar con tarjeta o con Bizum. El pago lo procesa Stripe de forma segura; nosotros no vemos ni
         guardamos los datos de tu tarjeta. El cargo se hace en el momento de la compra.
+      </P>
+      <P>
+        También puedes pagar al recibir (contrareembolso), sin coste extra: pagas el importe del pedido al
+        repartidor en el momento de la entrega.
       </P>
 
       <H2>5. Envío y entrega</H2>
@@ -74,7 +82,8 @@ export default function CondicionesPage() {
         devolución corren de tu cuenta, salvo que el cuadro haya llegado dañado o no sea el que pediste.
       </P>
       <P>
-        Te devolvemos todo lo que pagaste con el mismo método de pago en un plazo máximo de 14 días desde que nos
+        Te devolvemos todo lo que pagaste con el mismo método de pago (si pagaste al recibir, por transferencia
+        bancaria a la cuenta que nos indiques) en un plazo máximo de 14 días desde que nos
         comunicas que desistes. Podemos esperar a recibir el cuadro, o a que nos envíes el justificante de
         envío, antes de hacer el reembolso. Más información en{" "}
         <A href="/devoluciones">garantía y devoluciones</A>.

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import CodOrderForm from "@/components/CodOrderForm";
 import { useEffect, useRef, useState } from "react";
 import { COMPARE_AT_CENTS, HAPPY_CUSTOMERS, MEDIA, REVIEWS, SIZE_LABEL, type Review } from "@/lib/cuadroJesus";
 import { formatPrice } from "@/lib/format";
@@ -69,6 +70,10 @@ const FAQ = [
   {
     q: "¿Hacéis envíos a toda España?",
     a: "Sí, enviamos a toda España, el envío es gratis y llega en 24–72 h. Recibirás un email con el seguimiento en cuanto tu pedido salga de nuestro almacén.",
+  },
+  {
+    q: "¿Puedo pagar al recibirlo?",
+    a: "Sí. Elige \"Pagar al recibir\", rellena tus datos y no pagas nada ahora. Te escribimos por WhatsApp para confirmar el pedido y pagas al repartidor cuando lo recibas. Si lo prefieres, también puedes pagar al momento con tarjeta o Bizum.",
   },
   {
     q: "¿Y si llega dañado?",
@@ -252,6 +257,9 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [submitting, setSubmitting] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Cash on delivery is the main way to buy (every past sale was COD); card
+  // stays as the second option.
+  const [codVariant, setCodVariant] = useState<ProductVariantRow | null>(null);
   // Phone-only sticky buy bar, shown while the main "Comprar ahora" button is
   // off screen (so the two never show at once).
   const buyButtonRef = useRef<HTMLButtonElement>(null);
@@ -304,6 +312,17 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
       setError(err instanceof Error ? err.message : "Algo salió mal, inténtalo de nuevo");
       setSubmitting(null);
     }
+  }
+
+  function openCod(variant: ProductVariantRow) {
+    trackMetaPixelEvent("InitiateCheckout", {
+      content_ids: [variant.id],
+      content_name: product.name,
+      content_type: "product",
+      value: variant.price_cents / 100,
+      currency: variant.currency.toUpperCase(),
+    });
+    setCodVariant(variant);
   }
 
   const active = GALLERY[activeIndex];
@@ -500,11 +519,22 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
           <button
             ref={buyButtonRef}
             type="button"
-            onClick={() => handleBuy(selected)}
+            onClick={() => openCod(selected)}
             disabled={submitting !== null}
             className="mt-3 w-full rounded-full bg-accent text-white py-4 font-medium uppercase tracking-wide text-sm disabled:opacity-50"
           >
-            {submitting ? "Redirigiendo al pago..." : `Comprar ahora • ${price(selected)}`}
+            <span className="block">Pagar al recibir • {price(selected)}</span>
+            <span className="block mt-0.5 text-[11px] font-normal normal-case tracking-normal opacity-90">
+              No pagas nada ahora · Envío gratis
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleBuy(selected)}
+            disabled={submitting !== null}
+            className="mt-2.5 w-full rounded-full border border-foreground/30 bg-white py-3 text-sm font-medium disabled:opacity-50"
+          >
+            {submitting ? "Redirigiendo al pago..." : "Pagar ahora con tarjeta o Bizum"}
           </button>
 
           <ul aria-label="Métodos de pago" className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
@@ -519,7 +549,7 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
             ))}
           </ul>
 
-          <p className="mt-3 text-center text-xs text-muted">Envío gratis · Pago seguro con tarjeta o Bizum · Precio final</p>
+          <p className="mt-3 text-center text-xs text-muted">Envío gratis · Paga al recibir o con tarjeta o Bizum · Precio final</p>
           <p className="mt-1 text-center text-xs text-muted">
             Si no llega o llega dañado, te enviamos otro gratis · 14 días de devolución
           </p>
@@ -631,13 +661,14 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
             Ilumina tus noches con la presencia de Jesús
           </p>
           <p className="mt-3 text-muted">Quédate uno y regala dos: comparte la bendición con quien más quieres.</p>
+          <p className="mt-2 text-sm text-muted">Paga al recibir · Envío gratis</p>
           <button
             type="button"
-            onClick={() => handleBuy(bestPack)}
+            onClick={() => openCod(bestPack)}
             disabled={submitting !== null}
             className="mt-7 rounded-full bg-accent text-white px-10 py-4 font-medium uppercase tracking-wide text-sm disabled:opacity-50"
           >
-            {submitting === bestPack.id ? "Redirigiendo al pago..." : `Comprar pack de 3 • ${price(bestPack)}`}
+            {`Pedir pack de 3 • ${price(bestPack)}`}
           </button>
         </section>
       ) : null}
@@ -680,15 +711,27 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
           </a>
           <button
             type="button"
-            onClick={() => handleBuy(selected)}
+            onClick={() => openCod(selected)}
             disabled={submitting !== null}
             tabIndex={mainBuyVisible ? -1 : 0}
-            className="shrink-0 rounded-full bg-accent px-6 py-3 text-sm font-medium uppercase tracking-wide text-white disabled:opacity-50"
+            className="shrink-0 rounded-full bg-accent px-5 py-3 text-sm font-medium uppercase tracking-wide text-white disabled:opacity-50"
           >
-            {submitting ? "Un momento…" : "Comprar ahora"}
+            Pagar al recibir
           </button>
         </div>
       </div>
+
+      {codVariant ? (
+        <CodOrderForm
+          variant={codVariant}
+          onClose={() => setCodVariant(null)}
+          onPayByCard={() => {
+            const v = codVariant;
+            setCodVariant(null);
+            handleBuy(v);
+          }}
+        />
+      ) : null}
     </div>
   );
 }

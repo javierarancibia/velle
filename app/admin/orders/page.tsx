@@ -6,6 +6,7 @@ import type { OrderStatus } from "@/lib/types";
 export const dynamic = "force-dynamic";
 
 const STATUSES: (OrderStatus | "all")[] = [
+  "cod_pending",
   "paid",
   "sent_to_gelato",
   "fulfilled",

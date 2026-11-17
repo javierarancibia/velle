@@ -1,6 +1,7 @@
 import Link from "next/link";
 import CustomerEmailButton from "@/components/CustomerEmailButton";
 import { CUSTOMER_EMAILS } from "@/lib/customerEmails";
+import { whatsAppLink } from "@/lib/emails/codOrder";
 import { listPaidOrders } from "@/lib/db";
 import { formatPrice } from "@/lib/format";
 import type { OrderRow } from "@/lib/types";
@@ -123,8 +124,20 @@ export default async function AdminClientsPage({
                       <p className="text-muted">Sin email</p>
                     )}
                     {phone ? <p className="text-muted">{phone}</p> : null}
+                    {o.payment_method === "cod" ? (
+                      <p className="mt-1 flex flex-wrap items-center gap-2 text-xs">
+                        <span className="rounded bg-amber-100 px-1.5 py-0.5 font-medium text-amber-900">
+                          {o.status === "cod_pending" ? "Contrareembolso · por cobrar" : "Contrareembolso"}
+                        </span>
+                        {o.customer_phone ? (
+                          <a href={whatsAppLink(o.customer_phone)} target="_blank" rel="noreferrer" className="text-[#128C7E] hover:underline">
+                            WhatsApp
+                          </a>
+                        ) : null}
+                      </p>
+                    ) : null}
                     {count > 1 ? <p className="mt-1 text-xs text-accent">{count} pedidos</p> : null}
-                    {!o.stripe_checkout_session_id ? (
+                    {!o.stripe_checkout_session_id && o.payment_method !== "cod" ? (
                       <p className="mt-1 text-xs text-muted">Añadido a mano</p>
                     ) : null}
                   </td>
@@ -133,7 +146,7 @@ export default async function AdminClientsPage({
                     <Link href={`/admin/orders/${o.id}`} className="text-accent hover:underline">
                       {o.order_number}
                     </Link>
-                    <p className="text-muted">{o.paid_at ? dateFormat.format(new Date(o.paid_at)) : "—"}</p>
+                    <p className="text-muted">{dateFormat.format(new Date(o.paid_at ?? o.created_at))}</p>
                     <p className="text-muted">
                       {o.amount_total_cents ? formatPrice(o.amount_total_cents, o.currency ?? "eur") : "—"} · {o.status}
                     </p>

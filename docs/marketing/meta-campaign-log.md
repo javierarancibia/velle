@@ -85,10 +85,32 @@ Copy unchanged from the old ads (I5x share "Lo que dicen nuestros clientes…").
 
 Full report: [analisis-3qs-2026-11-16.html](analisis-3qs-2026-11-16.html). 13–16 Nov: Presentación 88,92 € spent, 139 outbound clicks (CTR 1,59 %), 1 purchase credited by Meta (5A, 44,90 €) → ROAS 0,50 vs objective 2,6. Evaluación 0 € (all 6 ads approved; audience too small: VELLE_WEB_30D = 20 people because the pixel only loads after cookie consent).
 - Order database: every paid order since launch is from 13 Nov. **VEL-20261113-4DY3 is the only real sale** (confirmed by the user 16 Nov; credited to 5A Reseñas); VEL-20261113-FUYM was a test. **0 checkouts started 14–16 Nov**.
-- Same day: cookie banner slimmed to a bottom bar and a phone-only sticky buy bar added to the product page. Pixel agrees (InitiateCheckout 8 / Purchase 4 on 13 Nov only).
+- Same day: cookie banner slimmed to a bottom bar and a phone-only sticky buy bar added to the product page (8e77d81).
+
+## 2026-11-16 (midday) — Retargeting audiences widened, V0 text fixed (user's OK)
+
+- **Retargeting 30d** `120248693960030534`: now VELLE_WEB_30D + VELLE_CHECKOUT_14D + VELLE_FB_ENG_30D + **VELLE_WEB_90D** + **VELLE_FB_ENG_90D**; still custom audiences only (Advantage+ audience off), Spain 18–65, excludes VELLE_COMPRADORES_30D. Applied live. Right after the edit its delivery read "no_active_ad" and all 7 ads were re-processing (IN_PROCESS); check tomorrow that it spends.
+- Instagram engagers audience still fails (no audience permission on IG `17841465204808383` through the connector): the user creates it in Ads Manager and adds it to this ad set.
+- Video-viewer audiences can't be created through the connector.
+- **Control:** new creative `28948204528193706` (same video, thumbnail, headline; text says "tiene marco de madera" instead of "está pintado a mano"; `utm_content=v0-regalo-v2`), new ad **V0 v2** `120249014145680534` ACTIVE (in review). Old V0 `120248693578730534` PAUSED.
+- **COD:** user decided to add a "pay on delivery" button with a form (no automation; orders are entered by hand on the warehouse page). Build it on **18 Nov**, ready for the day-7 decision on 20 Nov. Pixel agrees (InitiateCheckout 8 / Purchase 4 on 13 Nov only).
 - Product page on mobile: the cookie banner covers about a third of the screen until answered. Rest of the page is fine.
 - Control ad V0 text still says "pintado a mano".
-- Nothing paused (under 7 days, no ad set near 36 €). Proposed, awaiting the user: slimmer cookie banner, warm audiences for retargeting (video viewers 50 %, IG engagers, WEB_90D), fix V0 text, no budget increase on 20 Nov until checkouts appear, day-7 COD decision.
+- Nothing paused (under 7 days, no ad set near 36 €). Proposed, awaiting the user (since done: banner, WEB_90D, V0 text): slimmer cookie banner, warm audiences for retargeting (video viewers 50 %, IG engagers, WEB_90D), fix V0 text, no budget increase on 20 Nov until checkouts appear, day-7 COD decision.
+
+## 2026-11-17 — Day 4 read (after the 16 Nov page update)
+
+- Presentación by day (spend / outbound clicks / Meta purchases): 13 Nov 22,13 € / 35 / 1 · 14 Nov 29,94 € / 43 / 0 · 15 Nov 28,38 € / 51 / 0 · 16 Nov 28,71 € / 40 / 0 · 17 Nov (to midday) 9,62 € / 9 / 0. Total 118,78 €, 178 clicks, 1 sale.
+- Evaluación (retargeting) spent 0,40 € on 16 Nov and 0 € on 17 Nov: still not delivering after the audience change.
+- Vercel Analytics 13–17 Nov: 148 visitors, 159 page views, all on /products/cuadro-jesus, 1 /checkout/success. 148 visitors vs 178 outbound clicks is normal (ad blockers, people who close before the page loads). The 94 % bounce rate means little here: Stripe checkout is on another domain, so even buyers count as bounces.
+- Orders database: checkout started twice since the update, both unpaid (pending_payment): VEL-20261116-WHP9 (16 Nov 13:35 Madrid, maybe the user testing) and VEL-20261117-9QVU (17 Nov 01:08 Madrid). Before the update: 0 checkouts 14–16 Nov.
+
+## 2026-11-17 (afternoon) — Cash on delivery live (user's OK)
+
+- Moved up from 18 Nov. "Pagar al recibir • price" is now the main button (also on the phone sticky bar and the pack-of-3 banner); "Pagar ahora con tarjeta o Bizum" is the secondary button. No COD surcharge: the price is already about 5 € above the old all-in 39,99 €.
+- Form → order saved as `cod_pending` (migration 0006), customer email with the approved wording, operator email with a one-tap WhatsApp link to the customer. Thank-you page has "Confirmar ahora por WhatsApp" to Velle's number (`NEXT_PUBLIC_WHATSAPP_NUMBER`, NL number, set in Vercel).
+- Meta: opening the form fires InitiateCheckout; placing a COD order fires Purchase. Meta's purchase count now includes orders that may be refused at the door (old campaigns: 10–15 %).
+- Read from 18 Nov: COD orders per day vs card checkouts; day-7 decision on 20 Nov becomes "does COD sell".
 
 ## To-dos
 

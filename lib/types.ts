@@ -4,7 +4,9 @@ export type OrderStatus =
   | "payment_failed"
   | "sent_to_gelato"
   | "fulfilled"
-  | "canceled";
+  | "canceled"
+  // Cash on delivery: ordered, not paid yet (the customer pays the courier).
+  | "cod_pending";
 
 // Order here drives both the swatch-picker order (StarMapProductClient.tsx
 // maps over this array) and which theme customers see first -- "galaxy" is
@@ -96,6 +98,9 @@ export interface OrderRow {
   confirmation_email_sent_at: string | null;
   processing_email_sent_at: string | null;
   shipped_email_sent_at: string | null;
+  // Migration 0006.
+  payment_method: "card" | "cod";
+  customer_phone: string | null;
 }
 
 export type CustomerEmailKind = "confirmation" | "processing" | "shipped";

@@ -17,7 +17,11 @@ export function isCustomerEmailKind(value: unknown): value is CustomerEmailKind 
 // has customer emails so far (Spanish, cuadro photo).
 export function customerEmailBlocker(order: OrderRow): string | null {
   if (order.personalization.kind !== "cuadro-jesus") return "Solo hay emails para el cuadro";
-  if (!order.paid_at) return "El pedido no está pagado";
+  // Cash-on-delivery orders get emails before they are paid (they pay the
+  // courier), unless canceled.
+  if (order.payment_method === "cod") {
+    if (order.status === "canceled") return "El pedido está cancelado";
+  } else if (!order.paid_at) return "El pedido no está pagado";
   if (!order.customer_email) return "El pedido no tiene email";
   return null;
 }
