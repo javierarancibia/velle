@@ -110,6 +110,7 @@ Full report: [analisis-3qs-2026-11-16.html](analisis-3qs-2026-11-16.html). 13–
 - Moved up from 18 Nov. "Pagar al recibir • price" is now the main button (also on the phone sticky bar and the pack-of-3 banner); "Pagar ahora con tarjeta o Bizum" is the secondary button. No COD surcharge: the price is already about 5 € above the old all-in 39,99 €.
 - Form → order saved as `cod_pending` (migration 0006), customer email with the approved wording, operator email with a one-tap WhatsApp link to the customer. Thank-you page has "Confirmar ahora por WhatsApp" to Velle's number (`NEXT_PUBLIC_WHATSAPP_NUMBER`, NL number, set in Vercel).
 - Meta: opening the form fires InitiateCheckout; placing a COD order fires Purchase. Meta's purchase count now includes orders that may be refused at the door (old campaigns: 10–15 %).
+- Live test by the user (VEL-20261117-IUA4, 79,90 €, 10:50 Madrid): emails, WhatsApp links and number all worked; order deleted. It fired one Purchase in Meta on 17 Nov, so subtract it from Meta's count for that day.
 - Read from 18 Nov: COD orders per day vs card checkouts; day-7 decision on 20 Nov becomes "does COD sell".
 
 ## To-dos
