@@ -99,7 +99,7 @@ function quantityOf(v: ProductVariantRow): number {
 // single-frame price -- what the same frames really cost bought one by one.
 const PACK_COPY: Record<number, { title: string; subtitle: string; badge?: string }> = {
   1: { title: "1 cuadro", subtitle: "Para ti" },
-  2: { title: "2 cuadros", subtitle: "Uno para ti y otro para quien más quieres", badge: "Más popular" },
+  2: { title: "2 cuadros", subtitle: "Uno para ti y otro para quien más quieres" },
   3: { title: "3 cuadros", subtitle: "Paga 2 y recibe 3", badge: "Mejor precio" },
 };
 
@@ -251,8 +251,9 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
   const packs = [...variants].sort((a, b) => quantityOf(a) - quantityOf(b));
   const single = packs[0];
   const bestPack = packs[packs.length - 1];
-  // Preselect the "Más popular" pack when it exists.
-  const [selectedId, setSelectedId] = useState((packs.find((v) => quantityOf(v) === 2) ?? single).id);
+  // Opens on 1 cuadro (18 Nov 2026): with the 2-pack preselected, the first
+  // price a visitor saw was 79,90 €, and every real buyer switched to 1.
+  const [selectedId, setSelectedId] = useState(single.id);
   const selected = packs.find((v) => v.id === selectedId) ?? single;
   const [activeIndex, setActiveIndex] = useState(0);
   const [submitting, setSubmitting] = useState<string | null>(null);

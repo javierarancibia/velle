@@ -133,6 +133,7 @@ Full report: [analisis-3qs-2026-11-16.html](analisis-3qs-2026-11-16.html). 13–
 - `lib/metaPixel.ts`: events fired before the pixel loads wait in memory (up to 20; nothing is stored or sent). `MetaPixel` sends them right after its PageView on "Aceptar" and drops them on "Rechazar". New visitors' ViewContent now reaches Meta, and so does a Purchase fired before the pixel loads.
 - Banner counter: `components/CookieBanner.tsx` → `POST /api/consent-event` → table `consent_events` (migration **0007**). One row per `shown` / `granted` / `denied`, plus `from_ad` (the landing URL had `fbclid`). Only the banner that opens by itself is counted, not a reopen from the footer. No cookie, IP, user agent or URL is stored. A sentence explaining it was added to /cookies.
 - Tested on a local production build with Meta's requests blocked. Accept → PageView + ViewContent, both with `fbc`. Reject → nothing sent to Meta, pixel never loads. One count per action. An earlier test on the dev server let a few localhost events through to the pixel (URL `localhost:3123`, `fbclid=IwLOCALtest`).
+- **Live 18 Nov ~13:40 Madrid (868a902)**, migration 0007 confirmed. Live check (Meta blocked): PageView + ViewContent with `fbc`, both counter calls 204. Claude's 2 test rows deleted (ids 3–4); counting starts with ids 1–2 (real visitors).
 - Accept rate per day: `shown` = banners shown, `granted / shown` = accept rate, `shown − granted − denied` = ignored. Split by `from_ad`.
 
 ## To-dos

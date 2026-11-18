@@ -20,3 +20,13 @@ Decided 16 Nov 2026: build it, but after the Navidad campaign analysis.
 - Sent by hand from the admin for now; consider automating after seeing real cases.
 
 Note: only customers who tick the consent box can be contacted.
+
+## Server-side purchases to Meta (Conversions API) — parked 18 Nov 2026
+
+Decided 18 Nov 2026: build it ourselves instead of buying a tool like wetracked.io (Shopify-oriented, ~$49–149/month, and "recover 100%" tools usually ignore cookie consent, which isn't legal in Spain).
+
+- Send `Purchase` from the server: in the Stripe webhook (`checkout.session.completed` / `async_payment_succeeded`) and in `app/api/cod/route.ts`.
+- **Only for visitors who accepted cookies**: pass the consent choice plus `_fbp`/`_fbc` from the browser at checkout and store them on the order. Nothing is sent for visitors who rejected.
+- Same `event_id` as the browser Purchase (e.g. the order number) so Meta dedupes the two.
+- Hashed email/phone (SHA-256) for match quality; needs a Conversions API token (Events Manager → dataset 769834309094276 → Settings).
+- Worth doing before budgets go up for Black Friday/Navidad: catches purchases the browser misses (ad blockers, Safari, page closed early).
