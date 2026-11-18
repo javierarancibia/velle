@@ -334,3 +334,11 @@ export async function recordWebhookEvent(eventId: string, type: string): Promise
   const { error } = await supabase.from("stripe_webhook_events").insert({ id: eventId, type });
   if (error) throw error;
 }
+
+// Anonymous cookie-banner answers (migration 0007). No identifiers stored.
+export type ConsentEventKind = "shown" | "granted" | "denied";
+
+export async function insertConsentEvent(event: ConsentEventKind, fromAd: boolean): Promise<void> {
+  const { error } = await supabase.from("consent_events").insert({ event, from_ad: fromAd });
+  if (error) throw error;
+}

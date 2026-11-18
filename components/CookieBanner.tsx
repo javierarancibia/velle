@@ -8,18 +8,38 @@ import { onConsentOpen, openConsentBanner, readConsent, writeConsent } from "@/l
 // cookie loads, "Rechazar" sits next to "Aceptar" with the same weight, and
 // "Configurar" lets the visitor choose per purpose. The footer link
 // (CookieSettingsLink) reopens it so consent can be withdrawn at any time.
+
+// Anonymous count of banner answers (see app/api/consent-event). Only the
+// banner that opens by itself is counted, not a reopen from the footer.
+function countConsentEvent(event: "shown" | "granted" | "denied", fromAd: boolean) {
+  fetch("/api/consent-event", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ event, fromAd }),
+    keepalive: true,
+  }).catch(() => {});
+}
+
 export default function CookieBanner() {
   const [open, setOpen] = useState(false);
   const [configuring, setConfiguring] = useState(false);
   const [ads, setAds] = useState(false);
   const barRef = useRef<HTMLDivElement>(null);
+  // Set when the banner opened by itself; read when the visitor answers.
+  const counted = useRef<{ fromAd: boolean } | null>(null);
 
   useEffect(() => {
     // Cookies are only readable after mount, so the first visit shows the
     // banner one frame after hydration rather than flashing on returning visitors.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (readConsent() === null) setOpen(true);
+    if (readConsent() === null) {
+      const fromAd = new URLSearchParams(window.location.search).has("fbclid");
+      counted.current = { fromAd };
+      countConsentEvent("shown", fromAd);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setOpen(true);
+    }
     return onConsentOpen(() => {
+      counted.current = null;
       setAds(readConsent() === "granted");
       setConfiguring(true);
       setOpen(true);
@@ -49,6 +69,10 @@ export default function CookieBanner() {
 
   const choose = (granted: boolean) => {
     writeConsent(granted ? "granted" : "denied");
+    if (counted.current) {
+      countConsentEvent(granted ? "granted" : "denied", counted.current.fromAd);
+      counted.current = null;
+    }
     setOpen(false);
     setConfiguring(false);
   };

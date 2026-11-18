@@ -113,12 +113,34 @@ Full report: [analisis-3qs-2026-11-16.html](analisis-3qs-2026-11-16.html). 13–
 - Live test by the user (VEL-20261117-IUA4, 79,90 €, 10:50 Madrid): emails, WhatsApp links and number all worked; order deleted. It fired one Purchase in Meta on 17 Nov, so subtract it from Meta's count for that day.
 - Read from 18 Nov: COD orders per day vs card checkouts; day-7 decision on 20 Nov becomes "does COD sell".
 
+## 2026-11-18 (morning) — Day 5 read + cookie banner check
+
+**First COD order:** VEL-20261118-OQS0, 18 Nov 07:53 Madrid, Córdoba, 1 frame, 44,90 €, `cod_pending` (to be confirmed by WhatsApp). No card checkout since COD went live (17 Nov ~10:45). The pixel logged it: Meta's pixel day 17 Nov (09:00 17 Nov → 09:00 18 Nov Madrid) has 2 Purchase (the user's test + this order) and 6 InitiateCheckout (some are the user's tests). Meta hadn't credited it to an ad by midday; the only checkout started 18 Nov is on **V0 v2**, so probably that one.
+
+- Presentación by day (spend / outbound clicks / CPM / landing page views): 13 Nov 22,13 € / 35 / 9,83 / 13 · 14 Nov 29,94 € / 43 / 9,12 / 10 · 15 Nov 28,38 € / 51 / 10,97 / 12 · 16 Nov 28,72 € / 40 / 12,70 / 6 · 17 Nov 30,88 € / 37 / 16,36 / **1** · 18 Nov (to ~11:30) 8,92 € / 15 / 14,79 / **1**. Total 148,97 €, 221 clicks, **2 real sales (≈74 € per sale, ROAS ≈0,6)**.
+- By ad: 3A 26,59 € / 42 clicks / 0 checkouts (closest to the 36 € pause line) · 5A 25,42 € / 1 sale · V0 + V0 v2 32,81 € / 1 checkout · 6B 22,24 € / 0 · 1A 14,79 € / 0 · 1B 11,58 € / 0 · other 8 ads under 7 € each. No ad at 36 € without a sale, so nothing paused.
+- Evaluación (retargeting): 1,11 € and 9 impressions in total. Still not delivering.
+- CPM up from ~9 € to ~16 €; CTR 1,3–2,5 % (past campaigns 2,2–3,7 %).
+
+**Cookie banner check** (live test on velle.es at 390 px wide, with a fake `fbclid`; it sent one test PageView with `utm_content=claudetest`):
+- The banner works: a 98 px bottom bar, with the sticky buy bar sitting above it. Nothing loads from Meta before consent. On "Aceptar" the pixel loads and sends PageView with `fbc` (the ad click ID) and sets `_fbc`/`_fbp`, so ad visits can be matched.
+- The landing page view drop doesn't come from a broken pixel. Pixel PageViews held at 20–40/day (22 / 40 / 35 / 25 on 14–17 Nov) while landing page views fell 10 → 1. We can't measure the accept rate: banner choices aren't recorded anywhere. Possible causes: fewer ad visitors accept the slimmer bar, while the PageView total is held up by our own test visits (COD tests on 17 Nov); or just noise at these small numbers.
+- **Bug found:** `ViewContent` fires once when the product page mounts (`CuadroJesusProductClient.tsx` ~l.277). For a first-time visitor the pixel isn't loaded yet, so `trackMetaPixelEvent` drops it and doesn't send it again after "Aceptar". Every new visitor's ViewContent has been lost since the consent gate (12 Nov). Meta only sees ViewContent from returning visitors who accepted earlier. Fix proposed: hold events in memory until the visitor chooses, send them on "Aceptar", drop them on "Rechazar".
+- Proposed: count banner choices (accept / reject / no answer) without cookies or personal data, so the accept rate can be measured.
+- Vercel Analytics (user, 18 Nov): visitors from Spain 15 Nov 40 · 16 Nov 33 · 17 Nov 33. That's close to the pixel's PageViews (40 / 35 / 25), which points to a fairly high accept rate. The counter below will give the real number.
+
+**Both fixes built (user's OK, 18 Nov):**
+- `lib/metaPixel.ts`: events fired before the pixel loads wait in memory (up to 20; nothing is stored or sent). `MetaPixel` sends them right after its PageView on "Aceptar" and drops them on "Rechazar". New visitors' ViewContent now reaches Meta, and so does a Purchase fired before the pixel loads.
+- Banner counter: `components/CookieBanner.tsx` → `POST /api/consent-event` → table `consent_events` (migration **0007**). One row per `shown` / `granted` / `denied`, plus `from_ad` (the landing URL had `fbclid`). Only the banner that opens by itself is counted, not a reopen from the footer. No cookie, IP, user agent or URL is stored. A sentence explaining it was added to /cookies.
+- Tested on a local production build with Meta's requests blocked. Accept → PageView + ViewContent, both with `fbc`. Reject → nothing sent to Meta, pixel never loads. One count per action. An earlier test on the dev server let a few localhost events through to the pixel (URL `localhost:3123`, `fbclid=IwLOCALtest`).
+- Accept rate per day: `shown` = banners shown, `granted / shown` = accept rate, `shown − granted − denied` = ignored. Split by `from_ad`.
+
 ## To-dos
 
 ### Next session (start here)
 
 **Wed 18 Nov plan (agreed 17 Nov):**
-1. [ ] Morning read: cash-on-delivery orders vs card checkouts since COD went live (17 Nov ~10:45 Madrid). Subtract the test Purchase from 17 Nov in Meta. Check orders in the DB (`cod_pending`) against Meta's Purchase count.
+1. [x] (done, see 18 Nov entry) Morning read: cash-on-delivery orders vs card checkouts since COD went live (17 Nov ~10:45 Madrid). Subtract the test Purchase from 17 Nov in Meta. Check orders in the DB (`cod_pending`) against Meta's Purchase count.
 2. [ ] Retargeting `ES_RT_C_WARM` / Evaluación: spent 0,40 € on 16 Nov and 0 € on 17 Nov after the audience change. Find out why it isn't delivering.
 3. [ ] **New product gallery** (`GALLERY` in `components/CuadroJesusProductClient.tsx`), shipped on one day and logged here for the before/after:
    - Slide 1: a 3–4 s off → on loop, **made by the user** from our existing videos (real frame, "Salmo"). Claude trims, loops smoothly, compresses to a muted MP4 (~200 KB, `preload` with the lit hero as poster so phones never see a blank box).

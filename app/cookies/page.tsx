@@ -82,6 +82,11 @@ export default function CookiesPage() {
         También puedes borrar o bloquear las cookies desde la configuración de tu navegador (Chrome, Safari,
         Firefox o Edge). Si las bloqueas todas, es posible que el pago no funcione correctamente.
       </p>
+      <p className="mt-3 text-muted">
+        Para saber cuántas personas aceptan o rechazan, contamos de forma anónima cada respuesta al aviso
+        (aceptar, rechazar o sin respuesta). No guardamos ninguna cookie, dirección IP ni dato que te
+        identifique.
+      </p>
 
       <h2 className="mt-10 text-lg font-medium">Transferencias y más información</h2>
       <p className="mt-3 text-muted">

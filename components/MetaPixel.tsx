@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { onConsentChange, readConsent } from "@/lib/consent";
+import { dropPendingMetaPixelEvents, flushPendingMetaPixelEvents } from "@/lib/metaPixel";
 
 // Meta's base pixel, loaded only after the visitor accepts ad-measurement
 // cookies in the cookie banner. Until then fbevents.js is never requested, no
@@ -52,9 +53,13 @@ export default function MetaPixel({ pixelId }: { pixelId: string }) {
     const apply = (choice: string | null) => {
       if (choice === "granted") {
         loadPixel(pixelId);
+        // Events fired before consent (e.g. ViewContent on the product page
+        // the visitor landed on) go out now, after the PageView.
+        flushPendingMetaPixelEvents();
         lastTracked.current = window.location.pathname;
         setGranted(true);
       } else {
+        if (choice === "denied") dropPendingMetaPixelEvents();
         if (typeof window.fbq === "function") window.fbq("consent", "revoke");
         setGranted(false);
       }
