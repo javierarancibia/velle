@@ -697,10 +697,9 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
       {/* Room at the bottom so the bar never hides the last content. */}
       <div aria-hidden className="h-20 md:hidden" />
       <div
-        className={`fixed inset-x-0 z-40 border-t border-border bg-background/95 backdrop-blur shadow-[0_-4px_20px_rgba(0,0,0,0.08)] transition-transform duration-200 md:hidden ${
-          mainBuyVisible ? "translate-y-[calc(100%_+_var(--cookie-bar-h,0px))]" : "translate-y-0"
+        className={`fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur shadow-[0_-4px_20px_rgba(0,0,0,0.08)] transition-transform duration-200 md:hidden ${
+          mainBuyVisible ? "translate-y-full" : "translate-y-0"
         }`}
-        style={{ bottom: "var(--cookie-bar-h, 0px)" }}
         aria-hidden={mainBuyVisible}
       >
         <div className="flex items-center gap-3 px-4 py-2.5">

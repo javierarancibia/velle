@@ -147,6 +147,43 @@ Full report: [analisis-3qs-2026-11-16.html](analisis-3qs-2026-11-16.html). 13–
 **Gallery slides (step 3):** `build-gallery.mjs` (next to `build.mjs` in `Imagenes Retargeting/src/`) → `Campaña Noviembre 2026/Galeria Web/`: G-resenas (+500 familias, Fernanda + Carolina quotes word for word), G-tranquilidad (Paga al recibir · Envío gratis 24–72 h · ¿Llega dañado? Te enviamos otro · 14 días para devolverlo, matching the product page and /condiciones), G-packs (1 / 2 / 3 cuadros, 44,90 / 79,90 / 89,80 €, using the real frame photo three times). 1080×1080, drafts for the user to approve; not on the site yet.
 - ⚠️ **"3 units.png" is AI-generated and doesn't show the real product**: a cross design instead of Jesus and the child, with garbled text ("Salino 72:23" on one frame). It's the photo in the live retargeting ad **I1 v2 Paga 2 recibe 3** (`120248977561150534`). The ad barely delivers, but it should be rebuilt with the real frame before retargeting is used again.
 
+## 2026-11-18 (evening) — Failed payment, account paused for ~35 min, back to normal
+
+**What happened (Madrid time, from the activity log):** a Meta charge failed because the bank account was too low. At 18:48 Meta set the account to "Payment Needed", which stops all delivery, and emailed the user. Between 19:03 and 19:24 Meta collected the unpaid balance in 5 charges, all successful: 7,00 € + 13,12 € + 22,95 € + 34,38 € + 34,38 € = **111,83 €**. This is past spend being collected, not new spend. At 19:24 the account went back to **Active**.
+
+**Checked right after:** account ACTIVE with a payment method. The 5 Presentación ad sets are ACTIVE and delivering at 5 €/day each; account spend today 21,13 €, so close to the 25 €/day pace despite the pause. Retargeting is still PAUSED (on purpose, see the afternoon entry). No delivery errors on the Navidad campaigns. The only error is on the old Testeo 3 ad (`120231450140990534`, "Tracking Pixel Required"), which sits in a paused campaign and costs nothing. Nothing was changed in Meta.
+
+**Later that evening:** Billing & payments showed 0,58 € pending (spend since the 19:24 charges); the user paid it by hand, so nothing is owed. The account already has 2 cards on file, yet the ads still paused, so the backup card doesn't guarantee Meta retries on it before pausing.
+
+**Going forward:** keep enough money in the bank account for Meta's automatic charges. At ~25 €/day Meta bills every few days, and each failed charge pauses the account again. A one-off failed charge that's paid within the hour carries little risk. Repeated failures, or a balance left unpaid for days, can get the account restricted.
+
+## 2026-11-19 — Day 7 read: second COD order, most ad visitors never answer the cookie banner
+
+**Orders since 16 Nov (DB):** VEL-20261118-OQS0 (18 Nov 07:53, Córdoba, 44,90 €, `cod_pending`) and **VEL-20261119-WTIX (19 Nov 12:09, Alicante, 1 cuadro, 44,90 €, `cod_pending`)**. Meta credits today's order to **3A Montaje**; the Córdoba order is still not credited to any ad. No card checkout since COD went live. Real sales since launch: **3** (13 Nov card + 2 COD, both COD still to be confirmed by WhatsApp). All 3 are 1 cuadro.
+
+**Spend 13–19 Nov (to ~midday):** Presentación 175,49 € + retargeting 1,19 € = **176,68 €** for 3 sales (≈59 € per sale, revenue 134,70 €, ROAS ≈0,76; break-even is 34 €). 18 Nov: 21,49 € (payment pause). All 5 ad sets ACTIVE and delivering after yesterday's exclusion edit.
+
+| Ad | Spend | Out. clicks | CTR | LPV | Checkouts | Purchases |
+| --- | --- | --- | --- | --- | --- | --- |
+| 3A Montaje | 32,71 € | 49 | 2,55 % | 9 | 1 | 1 (today) |
+| 5A Reseñas | 28,02 € | 42 | 2,04 % | 12 | 1 | 1 (13 Nov) |
+| 6B Niño | 26,82 € | 57 | 1,97 % | 11 | 0 | 0 |
+| V0 (paused) + V0 v2 | 36,39 € | 48 | ~1,5 % | 5 | 1 | 0 |
+| 1B Abuela | 16,22 € | 18 | 1,34 % | 5 | 0 | 0 |
+| 1A Abuela | 15,81 € | 23 | 1,75 % | 5 | 0 | 0 |
+| 6C, 5B, 3C, 3B, 2B, 2A, 6A | under 7 € each | | | | | |
+
+No ad at 36 € without a sale, so nothing paused. V0 + V0 v2 together are at 36,39 € with 1 checkout and no sale, but they're two ads (V0 v2 alone is 13,84 €).
+
+**Cookie banner counter (first full day of data, 18 Nov 13:40 → 19 Nov midday, Madrid):**
+- From ads (`fbclid`): 30 shown, **6 granted, 0 denied, 24 ignored → ~20 % accept**. Today 21 shown vs 21 outbound clicks in Meta, so `shown` ≈ one per ad visitor.
+- Not from ads: 24 shown, 0 answers. Probably crawlers, link previews and Meta's ad review bot, not people.
+- So **Meta's pixel sees about 1 in 5 ad visitors**. The rest never answer the bottom bar; they just scroll past it. This fits the landing-page-view drop from 10–13/day (13–15 Nov, the bigger banner) to 1–6/day after the slim bar went live on 16 Nov, and the Córdoba COD order that Meta never saw. Meta optimises for Purchase on that fifth, so it learns from almost nothing.
+- Caveat: 30 ad visitors is a small sample.
+
+**Cookie banner is now a dialog that must be answered (user's OK, 19 Nov):** `components/CookieBanner.tsx`. A centred box over a dimmed page; the page can't be scrolled or tapped until the visitor picks Rechazar or Aceptar (same size and colour) or uses Configurar → Guardar. There's no close button and Escape does nothing, because ignoring it isn't an answer. On /cookies, /privacidad, /aviso-legal and /condiciones the box sits at the bottom without dimming, so those pages can be read first ("Más info" goes there). The sticky buy bar no longer uses `--cookie-bar-h`. Tested on a local production build at 390 px with Meta and the counter blocked: Aceptar → pixel loads + `granted`; Rechazar → nothing to Meta + `denied`; Configurar with the box unticked → `denied`; scrolling comes back after each choice.
+- **Read tomorrow (20 Nov):** accept rate from ads (`granted / shown` with `from_ad`), compared with ~20 % before. Also landing page views per day in Meta (1–6/day before), and whether product-page visits to checkout drop because of the dialog.
+
 ## To-dos
 
 ### Next session (start here)

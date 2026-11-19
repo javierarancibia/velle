@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { onConsentOpen, openConsentBanner, readConsent, writeConsent } from "@/lib/consent";
 
@@ -20,11 +21,17 @@ function countConsentEvent(event: "shown" | "granted" | "denied", fromAd: boolea
   }).catch(() => {});
 }
 
+// Pages the visitor may open from the dialog to read before choosing: there
+// the dialog sits at the bottom without dimming or locking the page.
+const READABLE_PAGES = ["/cookies", "/privacidad", "/aviso-legal", "/condiciones"];
+
 export default function CookieBanner() {
+  const pathname = usePathname();
+  const blocking = !READABLE_PAGES.includes(pathname);
   const [open, setOpen] = useState(false);
   const [configuring, setConfiguring] = useState(false);
   const [ads, setAds] = useState(false);
-  const barRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   // Set when the banner opened by itself; read when the visitor answers.
   const counted = useRef<{ fromAd: boolean } | null>(null);
 
@@ -46,24 +53,18 @@ export default function CookieBanner() {
     });
   }, []);
 
-  // Publish the bar's height as --cookie-bar-h so bottom-fixed elements (the
-  // product page's sticky buy bar) sit above it instead of under it.
+  // While the dialog is open the page behind it doesn't scroll, and keyboard
+  // focus starts inside the dialog.
   useEffect(() => {
-    const root = document.documentElement;
-    const el = barRef.current;
-    if (!open || !el) {
-      root.style.setProperty("--cookie-bar-h", "0px");
-      return;
-    }
-    const update = () => root.style.setProperty("--cookie-bar-h", `${el.offsetHeight}px`);
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
+    if (!open || !blocking) return;
+    const body = document.body;
+    const prev = body.style.overflow;
+    body.style.overflow = "hidden";
+    dialogRef.current?.focus({ preventScroll: true });
     return () => {
-      ro.disconnect();
-      root.style.setProperty("--cookie-bar-h", "0px");
+      body.style.overflow = prev;
     };
-  }, [open]);
+  }, [open, blocking]);
 
   if (!open) return null;
 
@@ -77,19 +78,33 @@ export default function CookieBanner() {
     setConfiguring(false);
   };
 
-  const btn = "flex-1 sm:flex-none rounded-full px-5 py-2 text-sm font-semibold transition-colors";
+  const btn = "flex-1 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors";
 
-  // A slim bar, not a card: on a phone it must leave the product, price and
-  // "Comprar" visible. Rechazar and Aceptar keep the same weight.
+  // A centred dialog over a dimmed page that needs an answer before the page
+  // can be used. The slim bottom bar it replaced (16–19 Nov 2026) was ignored
+  // by ~80 % of ad visitors, which left Meta blind to most of them. Rechazar
+  // and Aceptar keep the same size and colour, so rejecting is as easy as
+  // accepting (AEPD guide), and there is no close button: ignoring isn't an
+  // answer, and no optional cookie loads until one is given.
   return (
     <div
-      ref={barRef}
-      role="dialog"
-      aria-live="polite"
-      aria-label="Preferencias de cookies"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background shadow-[0_-4px_20px_rgba(0,0,0,0.08)]"
+      className={
+        blocking
+          ? "fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+          : "pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-4 pb-4"
+      }
     >
-      <div className="mx-auto max-w-5xl px-4 py-2.5 sm:py-3">
+      <div
+        role="dialog"
+        aria-modal={blocking}
+        aria-labelledby="cookie-title"
+        ref={dialogRef}
+        tabIndex={-1}
+        className="pointer-events-auto w-full max-w-md rounded-2xl border border-border bg-background p-5 shadow-xl outline-none sm:p-6"
+      >
+        <h2 id="cookie-title" className="mb-2 text-base font-semibold text-foreground">
+          Tu privacidad
+        </h2>
         {configuring && (
           <div className="mb-3 space-y-3 border-b border-border pb-3">
             <label className="flex items-start justify-between gap-4">
@@ -118,8 +133,8 @@ export default function CookieBanner() {
           </div>
         )}
 
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-          <p className="flex-1 text-xs leading-snug text-muted">
+        <div className="flex flex-col gap-4">
+          <p className="text-sm leading-snug text-muted">
             Usamos cookies necesarias y, solo si las aceptas, de Meta para medir nuestros anuncios.{" "}
             <Link href="/cookies" className="underline underline-offset-2 hover:text-foreground">
               Más info
