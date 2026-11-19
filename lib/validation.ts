@@ -58,7 +58,9 @@ export const codOrderRequestSchema = z.object({
   email: z.string().trim().email().max(200),
   line1: z.string().trim().min(3).max(200),
   line2: z.string().trim().max(200).optional(),
-  postalCode: z.string().trim().regex(/^(0[1-9]|[1-4]\d|5[0-2])\d{3}$/, "Código postal no válido"),
+  // Spanish postcodes 01–52, minus Ceuta (51) and Melilla (52): the warehouse
+  // doesn't ship there (19 Nov 2026). Baleares (07) and Canarias (35, 38) are in.
+  postalCode: z.string().trim().regex(/^(0[1-9]|[1-4]\d|50)\d{3}$/, "Código postal no válido"),
   city: z.string().trim().min(2).max(100),
   province: z.string().trim().max(100).optional(),
   website: z.string().max(0).optional(),

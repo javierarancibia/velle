@@ -4,7 +4,7 @@ import { PRODUCT_PATH } from "@/lib/cuadroJesus";
 export const metadata = {
   title: "Garantía y devoluciones — Velle",
   description:
-    "Envío gratis a toda España, reposición sin coste si tu cuadro llega dañado y 14 días para devolverlo.",
+    "Envío gratis a la Península, Baleares y Canarias, reposición sin coste si tu cuadro llega dañado y 14 días para devolverlo.",
 };
 
 // The Spanish guarantee for the cuadro. It is not made to order, so the
@@ -44,7 +44,7 @@ export default function DevolucionesPage() {
 
       <h2 className="mt-10 text-lg font-medium">Envío</h2>
       <p className="mt-3 text-muted">
-        El envío a toda España es gratis y tu pedido llega en 24–72 h. Recibirás un email con el seguimiento en
+        El envío es gratis a la Península, Baleares y Canarias, y tu pedido llega en 24–72 h. De momento no enviamos a Ceuta ni Melilla. Recibirás un email con el seguimiento en
         cuanto salga de nuestro almacén.
       </p>
 

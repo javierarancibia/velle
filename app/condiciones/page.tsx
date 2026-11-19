@@ -61,7 +61,7 @@ export default function CondicionesPage() {
 
       <H2>5. Envío y entrega</H2>
       <P>
-        Enviamos a toda España. Tu pedido llega normalmente en 24–72 horas. Si por cualquier motivo se retrasa, te
+        Enviamos a la Península, Baleares y Canarias (de momento no enviamos a Ceuta ni Melilla). Tu pedido llega normalmente en 24–72 horas. Si por cualquier motivo se retrasa, te
         avisaremos; en ningún caso tardaremos más de 30 días. Si no podemos entregarlo, te devolvemos el dinero
         entero.
       </P>

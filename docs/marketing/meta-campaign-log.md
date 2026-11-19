@@ -182,11 +182,37 @@ No ad at 36 € without a sale, so nothing paused. V0 + V0 v2 together are at 36
 - Caveat: 30 ad visitors is a small sample.
 
 **Cookie banner is now a dialog that must be answered (user's OK, 19 Nov):** `components/CookieBanner.tsx`. A centred box over a dimmed page; the page can't be scrolled or tapped until the visitor picks Rechazar or Aceptar (same size and colour) or uses Configurar → Guardar. There's no close button and Escape does nothing, because ignoring it isn't an answer. On /cookies, /privacidad, /aviso-legal and /condiciones the box sits at the bottom without dimming, so those pages can be read first ("Más info" goes there). The sticky buy bar no longer uses `--cookie-bar-h`. Tested on a local production build at 390 px with Meta and the counter blocked: Aceptar → pixel loads + `granted`; Rechazar → nothing to Meta + `denied`; Configurar with the box unticked → `denied`; scrolling comes back after each choice.
+**Budget decision (user, 19 Nov):** stays at 25 €/day (5 ad sets × 5 €). The Black Friday step to 65 €/day planned for 20 Nov is **on hold**. Why: 59 € per real sale over the week vs 34 € break-even. Since COD went live it's ~27 € per sale (2 sales, ~55 €), too few to act on. Raise only after a few more days of COD sales at ~25–30 € each, +20 % per step, with the user's OK.
+- How the banner affects the numbers: Meta reports ~88 € per sale (2 credited) vs ~59 € real (3 in the DB). Per-ad "0 sales" can't be trusted while only ~1 in 5 ad visitors is visible. Judge ads by the order DB first, Meta second.
+
 - **Read tomorrow (20 Nov):** accept rate from ads (`granted / shown` with `from_ad`), compared with ~20 % before. Also landing page views per day in Meta (1–6/day before), and whether product-page visits to checkout drop because of the dialog.
+
+## 2026-11-19 (evening) — Ceuta and Melilla excluded, new product gallery live
+
+**Shipping area (user, 19 Nov):** the warehouse ships to the Peninsula, Baleares and, for now, Canarias, but **not Ceuta or Melilla**.
+- **Meta (user's OK):** the 5 Presentación ad sets now exclude postcodes ES:51001–51005 (Ceuta) and ES:52001–52006 (Melilla) via `excluded_geo_locations.zips`. Draft mode was on: staged, checked that the draft held only these 5 edits, published, read back live. All 5 ACTIVE at 5 €/day, VELLE_COMPRADORES_180D still excluded, Advantage+ audience on; status IN_PROCESS right after (normal re-processing). Retargeting (paused) not touched.
+- **Site:** the COD form refuses 51xxx/52xxx ("Lo sentimos, de momento no enviamos a Ceuta ni Melilla."), checked in the browser and by the server (`lib/validation.ts`). "Toda España" replaced by "Península, Baleares y Canarias" in the FAQ (now "¿A dónde enviáis?"), the shipping accordion, the COD form, /condiciones section 5 and /devoluciones. Home and site descriptions now just say "Envío gratis". Not covered: Stripe card checkout only limits by country, so a card order to Ceuta/Melilla is still possible. Refund it by hand if one comes in.
+
+**New product gallery** (`GALLERY` in `components/CuadroJesusProductClient.tsx`, files in `public/products/jesus-frame/gallery/`), order agreed with the user:
+1. `encendido-real.mp4`: the user's real off → on footage (7 s, 720×720, no audio, 396 KB), lit-frame poster
+2. `reacciones.mp4`: customer reactions with quotes (Carolina, Valeria, Fernanda, Clara, Teresa; 6 s, 423 KB)
+3. `apagada-encendida.webp` (user's 8.png) · 4. `features.webp` (unchanged) · 5. `familias.webp` (7.png, quote from **María R., Madrid**: real customer, confirmed 19 Nov) · 6. `regalo.webp` (3.png) · 7. `tranquilidad.webp` (G-tranquilidad) · 8. `packs.webp` (G-packs, 89,80 €) · 9. `mesita.webp` (1.png)
+- Removed from the slider: hero.png, abuela, niño, joven, madre-hija, pareja, salmo and both "Psalm 73:23" videos. The "Cómo funciona" block and the home page also showed `encendido.mp4` (Psalm); both now use `encendido-real.mp4`. No page references the Psalm videos any more (the files are still in `public/`).
+- Not used: 4.png (same as 8, divider line cuts the headline) and **6.png** (AI image: "Siempre estaré coniigo", "Salmo 72 23", and 89,90 € instead of 89,80 €).
+- 1.png and 3.png show a dark-brown frame while the real one is light oak; the user chose to keep them.
+- Tested on a local production build at 390 px: the video autoplays, the 9 thumbnails are in order, nothing missing.
+- **Compare from 20 Nov:** checkouts started per ad click before/after. The gallery, the cookie dialog and the 1-cuadro default all changed within 2 days, so read them together.
 
 ## To-dos
 
 ### Next session (start here)
+
+**Fri 20 Nov plan (agreed 19 Nov):**
+1. [ ] Banner accept rate from ads since 13cd3bb went live (`consent_events`, `granted / shown`, `from_ad`) vs ~20 % before; how many denied.
+2. [ ] COD orders in the DB since 19 Nov midday, and whether the Córdoba/Alicante orders were confirmed by WhatsApp.
+3. [ ] Meta: landing page views per day (1–6 before) and how many DB orders Meta credits to an ad.
+4. [ ] Checkouts started vs ad clicks, to see if the dialog put people off.
+5. [ ] Budget stays at 25 €/day (Black Friday 65 €/day on hold). Revisit only with the user. CAPI (consenting visitors only) after Black Friday if the accept rate rises.
 
 **Wed 18 Nov plan (agreed 17 Nov):**
 1. [x] (done, see 18 Nov entry) Morning read: cash-on-delivery orders vs card checkouts since COD went live (17 Nov ~10:45 Madrid). Subtract the test Purchase from 17 Nov in Meta. Check orders in the DB (`cod_pending`) against Meta's Purchase count.
@@ -210,7 +236,7 @@ The Meta Ads connector went down mid-afternoon 13 Nov (CONNECT_TIMEOUT; Claude D
 - [x] Activate Presentación and Evaluación (done 13 Nov; user chose to launch retargeting now too).
 - [x] Website: customer video reviews, payment logos (no Bizum until approved), Vercel Analytics, pointer cursor. All pushed and live (5e9ea83, cc5eb85).
 - [ ] Check every ad passed review; fix any rejection.
-- [ ] Product page: remove the duplicate José María review; add Clara Z. ("Mi hija Josefina ama su Luz de Cristo"), Fernanda M. ("Mi Yayo lloró cuando vio a Jesús al iluminarse"), Carolina S. ("Es nuestro pequeño ritual con mi hijo rezar antes de dormir") and Luz R. ("El mejor regalo que me han dado para Navidad", from V6A), with stills from the Ad 5 / V6A videos as photos.
+- [x] (done 13 Nov, 5e9ea83, as 9:16 videos; ticked 19 Nov) Product page: remove the duplicate José María review; add Clara Z. ("Mi hija Josefina ama su Luz de Cristo"), Fernanda M. ("Mi Yayo lloró cuando vio a Jesús al iluminarse"), Carolina S. ("Es nuestro pequeño ritual con mi hijo rezar antes de dormir") and Luz R. ("El mejor regalo que me han dado para Navidad", from V6A), with stills from the Ad 5 / V6A videos as photos.
 - [ ] Payment-logo row under the buy button is built locally (not pushed); push it once Bizum is approved in Stripe.
 - [ ] Bizum live test purchase once Stripe approves it.
 - [ ] Delete `uploads/tmp-ads/thumb-*.jpg` from Supabase after review (`node --env-file=.env.local <scratchpad>/upthumbs.mjs <dir> --delete`, or from the Supabase dashboard).

@@ -20,18 +20,20 @@ type GalleryItem =
   | { type: "image"; src: string; alt: string }
   | { type: "video"; src: string; poster: string; alt: string };
 
+// Order agreed with the owner on 19 Nov 2026: the real off → on footage first,
+// then customer reactions, then what it does, proof, gift, reassurance, packs.
+// Every frame shown reads "Salmo 73:23", like the ones customers receive.
+const GALLERY_DIR = `${MEDIA}/gallery`;
 const GALLERY: GalleryItem[] = [
-  { type: "image", src: `${MEDIA}/hero.png`, alt: "Cuadro 'La Luz de Jesús' encendido" },
+  { type: "video", src: `${GALLERY_DIR}/encendido-real.mp4`, poster: `${GALLERY_DIR}/encendido-real.jpg`, alt: "El cuadro pasando de apagado a encendido: aparece Jesús llevando al niño de la mano" },
+  { type: "video", src: `${GALLERY_DIR}/reacciones.mp4`, poster: `${GALLERY_DIR}/reacciones.jpg`, alt: "Clientas reales recibiendo el cuadro, con sus reseñas" },
+  { type: "image", src: `${GALLERY_DIR}/apagada-encendida.webp`, alt: "Luz apagada y luz encendida, con regulador de brillo y tonos y conexión USB" },
   { type: "image", src: `${MEDIA}/features.webp`, alt: "Luz LED cálida, 3 tonos de color y brillo ajustable" },
-  { type: "image", src: `${MEDIA}/luz-apagada-encendida.webp`, alt: "Luz apagada y luz encendida, con control regulador USB" },
-  { type: "image", src: `${MEDIA}/abuela.webp`, alt: "Abuela mirando el cuadro iluminado" },
-  { type: "image", src: `${MEDIA}/nino.webp`, alt: "Niño junto al cuadro en su mesita de noche" },
-  { type: "image", src: `${MEDIA}/joven.webp`, alt: "Joven sosteniendo el cuadro en tono frío" },
-  { type: "image", src: `${MEDIA}/madre-hija.webp`, alt: "Madre e hija con el cuadro" },
-  { type: "image", src: `${MEDIA}/pareja.webp`, alt: "Pareja con el cuadro" },
-  { type: "image", src: `${MEDIA}/salmo.webp`, alt: "El cuadro junto a la cama, en tono frío" },
-  { type: "video", src: `${MEDIA}/encendido.mp4`, poster: `${MEDIA}/encendido.jpg`, alt: "El cuadro pasando de apagado a encendido" },
-  { type: "video", src: `${MEDIA}/oferta.mp4`, poster: `${MEDIA}/oferta.jpg`, alt: "El cuadro iluminado en casa" },
+  { type: "image", src: `${GALLERY_DIR}/familias.webp`, alt: "Más de 500 familias ya tienen esta luz en su hogar" },
+  { type: "image", src: `${GALLERY_DIR}/regalo.webp`, alt: "Un regalo que emociona a toda la familia" },
+  { type: "image", src: `${GALLERY_DIR}/tranquilidad.webp`, alt: "Paga al recibir, envío gratis, reposición si llega dañado y 14 días para devolverlo" },
+  { type: "image", src: `${GALLERY_DIR}/packs.webp`, alt: "Packs de 1, 2 y 3 cuadros: paga 2 y recibe 3" },
+  { type: "image", src: `${GALLERY_DIR}/mesita.webp`, alt: "El cuadro encendido en una mesita de noche" },
 ];
 
 // The two resena-* clips cycle through several customers with each quote
@@ -68,8 +70,8 @@ const FAQ = [
     a: `Mide ${SIZE_LABEL}: ideal para la mesita de noche, una estantería o un aparador.`,
   },
   {
-    q: "¿Hacéis envíos a toda España?",
-    a: "Sí, enviamos a toda España, el envío es gratis y llega en 24–72 h. Recibirás un email con el seguimiento en cuanto tu pedido salga de nuestro almacén.",
+    q: "¿A dónde enviáis?",
+    a: "Enviamos gratis a la Península, Baleares y Canarias, y llega en 24–72 h. De momento no enviamos a Ceuta ni Melilla. Recibirás un email con el seguimiento en cuanto tu pedido salga de nuestro almacén.",
   },
   {
     q: "¿Puedo pagar al recibirlo?",
@@ -346,7 +348,7 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
         regulador del cable puedes ajustar el brillo y elegir entre 3 tonos de color.
       </Accordion>
       <Accordion title="Envío gratis y devoluciones sin preocupaciones">
-        El envío a toda España es gratis. Si tu cuadro llega dañado, defectuoso o no llega, te enviamos uno nuevo sin coste. Y si cambias de opinión,
+        El envío es gratis a la Península, Baleares y Canarias. Si tu cuadro llega dañado, defectuoso o no llega, te enviamos uno nuevo sin coste. Y si cambias de opinión,
         tienes 14 días desde la entrega para devolverlo.
       </Accordion>
     </div>
@@ -597,8 +599,8 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
       <section className="bg-[#16110d] text-white py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 grid md:grid-cols-2 gap-10 items-center">
           <LazyVideo
-            src={`${MEDIA}/encendido.mp4`}
-            poster={`${MEDIA}/encendido.jpg`}
+            src={`${MEDIA}/gallery/encendido-real.mp4`}
+            poster={`${MEDIA}/gallery/encendido-real.jpg`}
             className="w-full aspect-square object-cover rounded-lg"
           />
           <div>

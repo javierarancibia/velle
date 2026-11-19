@@ -32,6 +32,9 @@ const FIELD_ERRORS: Record<string, string> = {
   city: "Escribe tu ciudad.",
 };
 
+// The server refuses 51xxx/52xxx too (lib/validation.ts); this gives the reason.
+const NO_SHIPPING_MSG = "Lo sentimos, de momento no enviamos a Ceuta ni Melilla.";
+
 // Cash-on-delivery order form (bottom sheet on phones, dialog on desktop).
 // Spain only. Card payment stays available through the link at the bottom.
 export default function CodOrderForm({ variant, onClose, onPayByCard }: Props) {
@@ -55,6 +58,11 @@ export default function CodOrderForm({ variant, onClose, onPayByCard }: Props) {
     setSubmitting(true);
     setErrors([]);
     const data = Object.fromEntries(new FormData(e.currentTarget)) as Record<string, string>;
+    if (/^5[12]/.test((data.postalCode ?? "").trim())) {
+      setErrors([NO_SHIPPING_MSG]);
+      setSubmitting(false);
+      return;
+    }
     try {
       const res = await fetch("/api/cod", {
         method: "POST",
@@ -141,7 +149,7 @@ export default function CodOrderForm({ variant, onClose, onPayByCard }: Props) {
             {submitting ? "Enviando…" : `Hacer pedido • ${price}`}
           </button>
           <p className="col-span-2 text-center text-xs text-muted">
-            Envíos a toda España. Al pedir aceptas las{" "}
+            Envíos a la Península, Baleares y Canarias. Al pedir aceptas las{" "}
             <Link href="/condiciones" className="underline underline-offset-2">
               condiciones de venta
             </Link>

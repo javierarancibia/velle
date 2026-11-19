@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Velle — Cuadro 'La Luz de Jesús'",
   description:
-    "Cuadro con luz de Jesús y el niño: apagado es una ilustración, encendido aparece Jesús. \"Siempre estaré contigo\" — Salmo 73:23. Envío gratis a toda España.",
+    "Cuadro con luz de Jesús y el niño: apagado es una ilustración, encendido aparece Jesús. \"Siempre estaré contigo\" — Salmo 73:23. Envío gratis.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

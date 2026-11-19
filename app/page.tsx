@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Velle — Cuadro 'La Luz de Jesús' que se ilumina",
   description:
-    "Apagado es un cuadro; al encenderlo aparece Jesús llevando a un niño de la mano. \"Siempre estaré contigo\" — Salmo 73:23. Envío gratis a toda España.",
+    "Apagado es un cuadro; al encenderlo aparece Jesús llevando a un niño de la mano. \"Siempre estaré contigo\" — Salmo 73:23. Envío gratis.",
 };
 
 const serif = { fontFamily: "var(--font-cuadro-serif), Georgia, serif" };
@@ -26,7 +26,7 @@ const FOR_WHOM = [
 
 const TRUST = [
   "Marco de madera con luz LED",
-  "Envío gratis a toda España",
+  "Envío gratis",
   "Si llega dañado, te enviamos otro",
   "Pago con tarjeta o Bizum",
 ];
@@ -103,8 +103,8 @@ export default async function Home() {
             </div>
           </div>
           <video
-            src={`${MEDIA}/encendido.mp4`}
-            poster={`${MEDIA}/encendido.jpg`}
+            src={`${MEDIA}/gallery/encendido-real.mp4`}
+            poster={`${MEDIA}/gallery/encendido-real.jpg`}
             autoPlay
             muted
             loop
