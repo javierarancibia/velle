@@ -64,5 +64,8 @@ export const codOrderRequestSchema = z.object({
   city: z.string().trim().min(2).max(100),
   province: z.string().trim().max(100).optional(),
   website: z.string().max(0).optional(),
+  // The buyer took the pack offered inside the form (20 Nov 2026), so we can
+  // count how often the upgrade works.
+  upgraded: z.boolean().optional(),
 });
 export type CodOrderRequest = z.infer<typeof codOrderRequestSchema>;

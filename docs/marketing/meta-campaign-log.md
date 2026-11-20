@@ -203,15 +203,53 @@ No ad at 36 € without a sale, so nothing paused. V0 + V0 v2 together are at 36
 - Tested on a local production build at 390 px: the video autoplays, the 9 thumbnails are in order, nothing missing.
 - **Compare from 20 Nov:** checkouts started per ad click before/after. The gallery, the cookie dialog and the 1-cuadro default all changed within 2 days, so read them together.
 
+## 2026-11-20 — Day 8 read: the cookie dialog works, no new sale since 19 Nov midday
+
+**Cookie banner, ad visitors only (`from_ad`):**
+
+| Period (Madrid) | Shown | Aceptar | Rechazar | No answer | Accept rate |
+| --- | --- | --- | --- | --- | --- |
+| Bottom bar, 18 Nov 13:40 → 19 Nov 13:24 | 32 | 6 | 0 | 26 | 19 % |
+| Dialog, 19 Nov 13:24 → 20 Nov 11:15 | 21 | 11 | 5 | 5 | **52 %** |
+
+The first "Rechazar" arrives at 19 Nov 18:48, so the dialog probably went live then, not at commit time. The split doesn't change much either way. Meta now sees about half of ad visitors, up from 1 in 5. "No answer" now means the visitor left without choosing (5 of 21, 24 %). Before, it meant they scrolled past the bar. Visits not from ads are still all "shown" with no answer (crawlers).
+
+**Meta (Presentación by day, spend / outbound clicks / landing page views):** 17 Nov 30,90 € / 37 / 1 · 18 Nov 20,70 € / 27 / 5 · 19 Nov 26,74 € / 35 / 9 · 20 Nov (to midday) 9,81 € / 8 / 4. Landing page views per click are back to the 13–15 Nov level (25–50 %). CPM 14–18 € (was 9–11 € in the first days; probably Black Friday competition).
+
+**Orders (DB):** none since VEL-20261119-WTIX (19 Nov 12:09, before the dialog). Meta logged 1 InitiateCheckout today with no order in the DB: someone opened the COD form and didn't submit it. No card checkout started either. Both COD orders (Córdoba, Alicante) are still `cod_pending` in the DB, but the user says both customers confirmed by WhatsApp (20 Nov): one has already received it and the other is on its way. So all 3 sales are real.
+
+**Totals 13 Nov → 20 Nov midday:** 197,32 € Presentación + 1,19 € retargeting = **198,51 € for 3 real sales (≈66 € per sale, ROAS ≈0,68)**. Since COD went live (17 Nov ~10:45): ≈75 € for 2 sales (≈38 € each, just above the 34 € break-even).
+
+**By ad (13–20 Nov):** 3A 35,22 € / 49 clicks / 1 sale · **6B 30,55 € / 65 clicks / 0 checkouts** (best CTR and most landing page views, no sale; hits the 36 € pause line in about a day) · 5A 29,65 € / 1 sale · V0 22,55 € (paused) + V0 v2 19,46 € / 1 checkout · 1B 20,57 € / 1 checkout · 1A 16,10 € · 5B 8,68 € · 6C 6,60 € · 3C, 3B, 2B, 2A, 6A under 4 € each (Meta barely delivers them). Nothing paused; no ad at 36 € without a sale.
+
+**Did the dialog put people off?** We can't tell yet. About 28 ad visits since it went live and no order, but the week's rate is ~1 sale per 100 outbound clicks, so 0 in 28 is normal. Read again after ~100 clicks on the new page (about 3 days at 25 €/day).
+
+## 2026-11-20 (afternoon) — Pack upgrade in the pay-on-delivery form (user's OK)
+
+Why: all 3 real orders were 1 cuadro (about 34 € kept per sale vs about 71 € on the 3-pack), and every buyer goes straight from 1 cuadro to the form.
+- **Form (`components/CodOrderForm.tsx`):** opened with 1 cuadro, a box offers "🎁 Llévate 3 por 89,80 €: 2 cuadros más por solo 44,90 € (29,93 € cada uno). Perfecto para regalar en Navidad." [Sí, quiero 3]. Opened with 2 cuadros, the same box says "1 cuadro más por solo 9,90 €". Opened with 3, no box. One tap switches the order and keeps what's been typed; "Volver a 1 cuadro" undoes it. "Prefiero pagar ahora con tarjeta o Bizum" pays for whichever pack is chosen.
+- **Pack list:** price per frame under the 2- and 3-pack prices (39,95 € / 29,93 € per cuadro); 3-pack subtitle now "Paga 2 y recibe 3 · Uno para ti y dos para regalar".
+- **Measuring:** orders where the buyer took the offer have the note "Contrareembolso: confirmar por WhatsApp · Pack elegido en el formulario". The upgrade rate is those orders divided by all COD orders opened with 1 or 2 cuadros.
+- Tested on a local production build at 390 px with Meta, the banner counter, `/api/cod` and `/api/checkout` intercepted (no test orders in the DB).
+- **Watch:** COD forms sent per InitiateCheckout before/after (if fewer people send the form, the offer may feel pushy), and refusals at the door on 89,80 € orders.
+
 ## To-dos
 
 ### Next session (start here)
 
+**Sat 21 Nov plan:**
+1. [ ] 6B: if it reaches 36 € with no sale, propose pausing it (user's OK).
+2. [ ] Orders since 20 Nov midday; COD confirmations.
+3. [ ] Accept rate from ads (52 % on day 1 of the dialog); checkouts started per 100 outbound clicks since the dialog + gallery.
+4. [ ] Budget stays at 25 €/day unless the user decides otherwise.
+
+**Mon 23 Nov decision (agreed with the user 20 Nov):** no structure change until then, so the cookie dialog can be read on its own. On Monday, from orders since 19 Nov ~18:45 (dialog live): (a) merge into one ad set at 25 €/day with 3A, 5A, 6B, 1B, V0 v2 and 1A (same posts, so likes and comments stay), and (b) budget: under ~30 € per sale → +20 % (30 €/day); 30–40 € → hold and make new videos like 3A/5A; over 45 € or no sales → look at the page or the offer, not the ads.
+
 **Fri 20 Nov plan (agreed 19 Nov):**
-1. [ ] Banner accept rate from ads since 13cd3bb went live (`consent_events`, `granted / shown`, `from_ad`) vs ~20 % before; how many denied.
-2. [ ] COD orders in the DB since 19 Nov midday, and whether the Córdoba/Alicante orders were confirmed by WhatsApp.
-3. [ ] Meta: landing page views per day (1–6 before) and how many DB orders Meta credits to an ad.
-4. [ ] Checkouts started vs ad clicks, to see if the dialog put people off.
+1. [x] (done, see 20 Nov entry) Banner accept rate from ads since 13cd3bb went live (`consent_events`, `granted / shown`, `from_ad`) vs ~20 % before; how many denied.
+2. [x] (done; confirmations still to ask) COD orders in the DB since 19 Nov midday, and whether the Córdoba/Alicante orders were confirmed by WhatsApp.
+3. [x] (done) Meta: landing page views per day (1–6 before) and how many DB orders Meta credits to an ad.
+4. [x] (too early, see 20 Nov entry) Checkouts started vs ad clicks, to see if the dialog put people off.
 5. [ ] Budget stays at 25 €/day (Black Friday 65 €/day on hold). Revisit only with the user. CAPI (consenting visitors only) after Black Friday if the accept rate rises.
 
 **Wed 18 Nov plan (agreed 17 Nov):**

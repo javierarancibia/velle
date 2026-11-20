@@ -102,7 +102,7 @@ function quantityOf(v: ProductVariantRow): number {
 const PACK_COPY: Record<number, { title: string; subtitle: string; badge?: string }> = {
   1: { title: "1 cuadro", subtitle: "Para ti" },
   2: { title: "2 cuadros", subtitle: "Uno para ti y otro para quien más quieres" },
-  3: { title: "3 cuadros", subtitle: "Paga 2 y recibe 3", badge: "Mejor precio" },
+  3: { title: "3 cuadros", subtitle: "Paga 2 y recibe 3 · Uno para ti y dos para regalar", badge: "Mejor precio" },
 };
 
 const price = (v: ProductVariantRow) => formatPrice(v.price_cents, v.currency, "es-ES");
@@ -497,6 +497,9 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
                         <span className="block text-xs text-muted line-through">{eur(fullPriceCents)}</span>
                       ) : null}
                       <span className="block font-medium">{price(v)}</span>
+                      {qty > 1 ? (
+                        <span className="block text-[11px] text-muted">{eur(Math.round(v.price_cents / qty))} / cuadro</span>
+                      ) : null}
                       {savingCents > 0 ? (
                         <span className="block text-[11px] text-[#9b2c1f]">Ahorras {eur(savingCents)}</span>
                       ) : null}
@@ -726,9 +729,9 @@ export default function CuadroJesusProductClient({ product, variants }: Props) {
       {codVariant ? (
         <CodOrderForm
           variant={codVariant}
+          upgrade={bestPack}
           onClose={() => setCodVariant(null)}
-          onPayByCard={() => {
-            const v = codVariant;
+          onPayByCard={(v) => {
             setCodVariant(null);
             handleBuy(v);
           }}

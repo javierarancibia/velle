@@ -41,6 +41,7 @@ export async function POST(req: Request) {
     },
     amountTotalCents: variant.price_cents,
     currency: variant.currency,
+    upgradedInForm: input.upgraded === true,
   });
 
   // The order is saved either way; a failed email must not lose the sale.

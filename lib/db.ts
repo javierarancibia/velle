@@ -101,7 +101,11 @@ export async function createCodOrder(input: {
   shippingAddress: Record<string, unknown>;
   amountTotalCents: number;
   currency: string;
+  upgradedInForm?: boolean;
 }): Promise<OrderRow> {
+  const notes = input.upgradedInForm
+    ? "Contrareembolso: confirmar por WhatsApp · Pack elegido en el formulario"
+    : "Contrareembolso: confirmar por WhatsApp";
   for (let attempt = 0; attempt < 3; attempt++) {
     const { data, error } = await supabase
       .from("orders")
@@ -118,7 +122,7 @@ export async function createCodOrder(input: {
         shipping_address: input.shippingAddress,
         amount_total_cents: input.amountTotalCents,
         currency: input.currency,
-        notes: "Contrareembolso: confirmar por WhatsApp",
+        notes,
       })
       .select("*")
       .single();

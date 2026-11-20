@@ -8,9 +8,16 @@ import type { ProductVariantRow } from "@/lib/types";
 
 interface Props {
   variant: ProductVariantRow;
+  // Bigger pack offered in one tap at the top of the form (20 Nov 2026: every
+  // buyer so far chose 1 cuadro and went straight here). Omit to hide it.
+  upgrade?: ProductVariantRow;
   onClose: () => void;
-  onPayByCard: () => void;
+  // Card payment for whichever pack is chosen in the form.
+  onPayByCard: (variant: ProductVariantRow) => void;
 }
+
+// Pack size from the variant label ("1 cuadro", "3 cuadros").
+const qtyOf = (v: ProductVariantRow) => parseInt(v.label, 10) || 1;
 
 const FIELDS = [
   { name: "name", label: "Nombre y apellidos", autoComplete: "name", required: true },
@@ -37,12 +44,17 @@ const NO_SHIPPING_MSG = "Lo sentimos, de momento no enviamos a Ceuta ni Melilla.
 
 // Cash-on-delivery order form (bottom sheet on phones, dialog on desktop).
 // Spain only. Card payment stays available through the link at the bottom.
-export default function CodOrderForm({ variant, onClose, onPayByCard }: Props) {
+export default function CodOrderForm({ variant: opened, upgrade, onClose, onPayByCard }: Props) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
+  // The fields are uncontrolled, so switching pack keeps what's been typed.
+  const [upgraded, setUpgraded] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
-  const price = formatPrice(variant.price_cents, variant.currency, "es-ES");
+  const canUpgrade = !!upgrade && qtyOf(upgrade) > qtyOf(opened);
+  const variant = upgraded && upgrade ? upgrade : opened;
+  const fmt = (cents: number) => formatPrice(cents, variant.currency, "es-ES");
+  const price = fmt(variant.price_cents);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -67,7 +79,7 @@ export default function CodOrderForm({ variant, onClose, onPayByCard }: Props) {
       const res = await fetch("/api/cod", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ ...data, variantId: variant.id }),
+        body: JSON.stringify({ ...data, variantId: variant.id, upgraded }),
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -116,6 +128,10 @@ export default function CodOrderForm({ variant, onClose, onPayByCard }: Props) {
           cuando lo recibas.
         </p>
 
+        {canUpgrade && upgrade ? (
+          <UpgradeBox opened={opened} upgrade={upgrade} upgraded={upgraded} fmt={fmt} onChange={setUpgraded} />
+        ) : null}
+
         <form onSubmit={submit} className="mt-5 grid grid-cols-2 gap-3" noValidate={false}>
           {FIELDS.map((f) => (
             <label key={f.name} className={`${"half" in f && f.half ? "col-span-1" : "col-span-2"} block text-sm`}>
@@ -157,13 +173,72 @@ export default function CodOrderForm({ variant, onClose, onPayByCard }: Props) {
           </p>
           <button
             type="button"
-            onClick={onPayByCard}
+            onClick={() => onPayByCard(variant)}
             className="col-span-2 text-center text-sm text-muted underline underline-offset-2"
           >
             Prefiero pagar ahora con tarjeta o Bizum
           </button>
         </form>
       </div>
+    </div>
+  );
+}
+
+// One-tap switch to the bigger pack. After the switch it stays visible with a
+// way back, so nobody ends up with a pack they didn't mean to order.
+function UpgradeBox({
+  opened,
+  upgrade,
+  upgraded,
+  fmt,
+  onChange,
+}: {
+  opened: ProductVariantRow;
+  upgrade: ProductVariantRow;
+  upgraded: boolean;
+  fmt: (cents: number) => string;
+  onChange: (upgraded: boolean) => void;
+}) {
+  const qty = qtyOf(upgrade);
+  const extraQty = qty - qtyOf(opened);
+  const extraCents = upgrade.price_cents - opened.price_cents;
+  const perFrame = fmt(Math.round(upgrade.price_cents / qty));
+  const extraText = extraQty === 1 ? "1 cuadro más" : `${extraQty} cuadros más`;
+
+  if (upgraded) {
+    return (
+      <div className="mt-3 flex items-center justify-between gap-3 rounded-lg border-2 border-[#c98b4f] bg-[#fbf0e4] px-4 py-3 text-sm">
+        <p>
+          <span aria-hidden>✓ </span>
+          <strong>{upgrade.label}</strong> por {fmt(upgrade.price_cents)} ({perFrame} cada uno)
+        </p>
+        <button
+          type="button"
+          onClick={() => onChange(false)}
+          className="shrink-0 text-xs text-muted underline underline-offset-2"
+        >
+          Volver a {opened.label}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-3 rounded-lg border-2 border-dashed border-[#c98b4f] bg-white px-4 py-3">
+      <p className="text-sm leading-relaxed">
+        <span aria-hidden>🎁 </span>
+        <strong>
+          Llévate {qty} por {fmt(upgrade.price_cents)}
+        </strong>
+        : {extraText} por solo {fmt(extraCents)} ({perFrame} cada uno). Perfecto para regalar en Navidad.
+      </p>
+      <button
+        type="button"
+        onClick={() => onChange(true)}
+        className="mt-2.5 w-full rounded-full bg-[#c98b4f] py-2.5 text-sm font-medium text-white"
+      >
+        Sí, quiero {qty}
+      </button>
     </div>
   );
 }
